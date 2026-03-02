@@ -1,6 +1,19 @@
+'use client';
 import { RefreshCw, MapPin, Hash, Ratio, ArrowUp } from 'lucide-react';
+import { SensorData } from '@/hooks/useSensorData';
 
-export default function HeroCard() {
+interface HeroCardProps {
+    latest: SensorData | null;
+    isConnected: boolean;
+}
+
+export default function HeroCard({ latest, isConnected }: HeroCardProps) {
+    const formatTimestamp = (ts: string) => {
+        const d = new Date(ts);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
     return (
         <div className="hero-card">
             <div className="hero-bg"></div>
@@ -8,8 +21,9 @@ export default function HeroCard() {
 
                 <div className="hero-badges">
                     <div className="flex gap-2">
-                        <span className="badge online" style={{ borderColor: 'var(--accent-green)' }}>
-                            <div className="status-dot green"></div> Online
+                        <span className={`badge online`} style={{ borderColor: isConnected ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                            <div className={`status-dot ${isConnected ? 'green' : 'red'}`}></div>
+                            {isConnected ? 'Online' : 'Offline'}
                         </span>
                         <span className="badge">Structural Health Monitoring</span>
                     </div>
@@ -18,7 +32,9 @@ export default function HeroCard() {
                         <RefreshCw size={12} className="text-teal" />
                         <div className="flex-col" style={{ gap: '0' }}>
                             <span style={{ color: 'var(--text-tertiary)', fontSize: '0.55rem', lineHeight: 1 }}>Last Update</span>
-                            <span className="text-teal font-mono" style={{ fontSize: '0.65rem', lineHeight: 1.2 }}>02-03-2026 00:04:05</span>
+                            <span className="text-teal font-mono" style={{ fontSize: '0.65rem', lineHeight: 1.2 }}>
+                                {latest ? formatTimestamp(latest.timestamp) : '-- no data --'}
+                            </span>
                         </div>
                     </span>
                 </div>

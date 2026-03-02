@@ -1,140 +1,158 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { History, Wind, ArrowRightLeft, Droplet, ArrowUp, ArrowDown, Activity, Compass } from 'lucide-react';
+import { SensorData } from '@/hooks/useSensorData';
 
-const initialData = [
-    {
-        id: 1,
-        date: 'Mon, Mar 2, 2026',
-        time: '00:05:09',
-        ago: '2s ago',
-        param: 'Sway',
-        icon: <ArrowRightLeft size={12} />,
-        prev: '52 mm',
-        curr: '61 mm',
-        change: '+9 mm',
-        changeType: 'up',
-        status: 'Critical',
-        color: 'red'
-    },
-    {
-        id: 2,
-        date: 'Mon, Mar 2, 2026',
-        time: '00:04:57',
-        ago: '14s ago',
-        param: 'Wind Speed',
-        icon: <Wind size={12} />,
-        prev: '1.24 knot',
-        curr: '3.87 knot',
-        change: '+2.63 knot',
-        changeType: 'up',
-        status: 'Normal',
-        color: 'green'
-    },
-    {
-        id: 3,
-        date: 'Mon, Mar 2, 2026',
-        time: '00:04:45',
-        ago: '26s ago',
-        param: 'Wind Speed',
-        icon: <Wind size={12} />,
-        prev: '3.87 knot',
-        curr: '2.05 knot',
-        change: '-1.82 knot',
-        changeType: 'down',
-        status: 'Normal',
-        color: 'green'
-    },
-    {
-        id: 4,
-        date: 'Sun, Mar 1, 2026',
-        time: '23:59:33',
-        ago: '5m ago',
-        param: 'Pitch',
-        icon: <Compass size={12} />,
-        prev: '0.12 °',
-        curr: '0.19 °',
-        change: '+0.07 °',
-        changeType: 'up',
-        status: 'Normal',
-        color: 'green'
-    },
-    {
-        id: 5,
-        date: 'Sun, Mar 1, 2026',
-        time: '23:45:21',
-        ago: '20m ago',
-        param: 'Total Tilt',
-        icon: <Droplet size={12} />,
-        prev: '0.057 °',
-        curr: '0.049 °',
-        change: '-0.01 °',
-        changeType: 'down',
-        status: 'Normal',
-        color: 'green'
-    },
-    {
-        id: 6,
-        date: 'Sat, Feb 28, 2026',
-        time: '14:20:00',
-        ago: '2d ago',
-        param: 'Sway',
-        icon: <ArrowRightLeft size={12} />,
-        prev: '28 mm',
-        curr: '35 mm',
-        change: '+7 mm',
-        changeType: 'up',
-        status: 'Warning',
-        color: 'yellow'
+interface HistoryTableProps {
+    history: SensorData[];
+}
+
+interface HistoryEvent {
+    id: number;
+    date: string;
+    time: string;
+    ago: string;
+    param: string;
+    icon: React.ReactNode;
+    prev: string;
+    curr: string;
+    change: string;
+    changeType: 'up' | 'down';
+    status: string;
+    color: string;
+}
+
+function getParamIcon(param: string) {
+    switch (param) {
+        case 'Wind Speed': return <Wind size={12} />;
+        case 'Sway': return <ArrowRightLeft size={12} />;
+        case 'Total Tilt': return <Droplet size={12} />;
+        case 'Pitch': return <Compass size={12} />;
+        case 'Roll': return <Activity size={12} />;
+        default: return <Activity size={12} />;
     }
-];
+}
 
-const newEventsPool = [
-    { param: 'Wind Speed', icon: <Wind size={12} />, prev: '2.05 knot', curr: '2.18 knot', change: '+0.13 knot', changeType: 'up', status: 'Normal', color: 'green' },
-    { param: 'Sway', icon: <ArrowRightLeft size={12} />, prev: '61 mm', curr: '58 mm', change: '-3 mm', changeType: 'down', status: 'Warning', color: 'yellow' },
-    { param: 'Pitch', icon: <Compass size={12} />, prev: '0.19 °', curr: '0.21 °', change: '+0.02 °', changeType: 'up', status: 'Normal', color: 'green' },
-    { param: 'Total Tilt', icon: <Droplet size={12} />, prev: '0.049 °', curr: '0.051 °', change: '+0.002 °', changeType: 'up', status: 'Normal', color: 'green' },
-    { param: 'Sway', icon: <ArrowRightLeft size={12} />, prev: '58 mm', curr: '64 mm', change: '+6 mm', changeType: 'up', status: 'Critical', color: 'red' },
-];
+function getStatus(param: string, value: number): { status: string; color: string } {
+    if (param === 'Sway') {
+        if (value > 50) return { status: 'Critical', color: 'red' };
+        if (value > 30) return { status: 'Warning', color: 'yellow' };
+        return { status: 'Normal', color: 'green' };
+    }
+    if (param === 'Total Tilt') {
+        if (value > 0.1) return { status: 'Critical', color: 'red' };
+        if (value > 0.05) return { status: 'Warning', color: 'yellow' };
+        return { status: 'Normal', color: 'green' };
+    }
+    if (param === 'Wind Speed') {
+        if (value > 15) return { status: 'Critical', color: 'red' };
+        if (value > 10) return { status: 'Warning', color: 'yellow' };
+        return { status: 'Normal', color: 'green' };
+    }
+    return { status: 'Normal', color: 'green' };
+}
 
-export default function HistoryTable() {
-    const [events, setEvents] = useState(initialData);
+function timeAgo(timestamp: string): string {
+    const diff = Date.now() - new Date(timestamp).getTime();
+    const secs = Math.floor(diff / 1000);
+    if (secs < 5) return 'just now';
+    if (secs < 60) return `${secs}s ago`;
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+}
+
+export default function HistoryTable({ history }: HistoryTableProps) {
+    const [events, setEvents] = useState<HistoryEvent[]>([]);
+    const prevHistoryRef = useRef<SensorData[]>([]);
 
     useEffect(() => {
-        // Simulate new data streaming in every 5 seconds
-        const interval = setInterval(() => {
-            const randomEvent = newEventsPool[Math.floor(Math.random() * newEventsPool.length)];
+        if (history.length < 2) return;
 
-            const now = new Date();
-            const timeString = now.toTimeString().split(' ')[0];
-            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        // Only regenerate events when history changes
+        if (JSON.stringify(history.map(h => h.id)) === JSON.stringify(prevHistoryRef.current.map(h => h.id))) return;
+        prevHistoryRef.current = history;
 
-            const newEntry = {
-                id: Date.now(),
+        const newEvents: HistoryEvent[] = [];
+        const params = ['wind_speed', 'pitch', 'roll', 'sway', 'total_tilt'] as const;
+        const paramNames: Record<string, string> = {
+            wind_speed: 'Wind Speed',
+            pitch: 'Pitch',
+            roll: 'Roll',
+            sway: 'Sway',
+            total_tilt: 'Total Tilt',
+        };
+        const paramUnits: Record<string, string> = {
+            wind_speed: 'knot',
+            pitch: '°',
+            roll: '°',
+            sway: 'mm',
+            total_tilt: '°',
+        };
+
+        for (let i = 0; i < history.length - 1 && newEvents.length < 50; i++) {
+            const curr = history[i];
+            const prev = history[i + 1];
+
+            // Find the parameter with the biggest relative change
+            let biggestParam = params[0];
+            let biggestDiff = 0;
+
+            for (const p of params) {
+                const diff = Math.abs(curr[p] - prev[p]);
+                if (diff > biggestDiff) {
+                    biggestDiff = diff;
+                    biggestParam = p;
+                }
+            }
+
+            const paramName = paramNames[biggestParam];
+            const unit = paramUnits[biggestParam];
+            const currVal = curr[biggestParam];
+            const prevVal = prev[biggestParam];
+            const diff = currVal - prevVal;
+            const changeType = diff >= 0 ? 'up' : 'down';
+            const { status, color } = getStatus(paramName, currVal);
+
+            const d = new Date(curr.timestamp);
+            const dateString = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            const timeString = d.toTimeString().split(' ')[0];
+
+            const decimals = biggestParam === 'sway' ? 0 : biggestParam === 'wind_speed' ? 2 : biggestParam === 'total_tilt' ? 4 : 3;
+
+            newEvents.push({
+                id: curr.id,
                 date: dateString,
                 time: timeString,
-                ago: 'just now',
-                ...randomEvent
-            };
-
-            setEvents(prev => {
-                // Keep up to 100 events to simulate 30 days retention, adding new events to the top
-                const updated = [newEntry, ...prev].slice(0, 100);
-
-                // Update the "ago" text for existing events to reflect time passing
-                return updated.map(event => {
-                    if (event.id === newEntry.id) return event;
-                    if (event.ago === 'just now') return { ...event, ago: '5s ago' };
-                    if (event.ago === '5s ago') return { ...event, ago: '10s ago' };
-                    if (event.ago === '10s ago') return { ...event, ago: '15s ago' };
-                    if (event.ago === '15s ago') return { ...event, ago: '20s ago' };
-                    return event;
-                });
+                ago: timeAgo(curr.timestamp),
+                param: paramName,
+                icon: getParamIcon(paramName),
+                prev: `${prevVal.toFixed(decimals)} ${unit}`,
+                curr: `${currVal.toFixed(decimals)} ${unit}`,
+                change: `${diff >= 0 ? '+' : ''}${diff.toFixed(decimals)} ${unit}`,
+                changeType: changeType as 'up' | 'down',
+                status,
+                color,
             });
-        }, 5000);
+        }
 
-        return () => clearInterval(interval);
-    }, []);
+        setEvents(newEvents);
+    }, [history]);
+
+    // Update "ago" text periodically
+    useEffect(() => {
+        const timer = setInterval(() => {
+            if (history.length === 0) return;
+            setEvents(prev => prev.map(e => {
+                const matched = history.find(h => h.id === e.id);
+                return matched ? { ...e, ago: timeAgo(matched.timestamp) } : e;
+            }));
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [history]);
 
     const normalCount = events.filter(e => e.color === 'green').length;
     const warningCount = events.filter(e => e.color === 'yellow').length;
@@ -150,11 +168,12 @@ export default function HistoryTable() {
                     </div>
                     <div className="flex-col" style={{ gap: '0.1rem' }}>
                         <h3 className="section-title" style={{ fontSize: '0.875rem' }}>Parameter Change History</h3>
-                        <p className="section-subtitle">Retaining history for up to 30 days · auto-refresh every 5s</p>
+                        <p className="section-subtitle">Live data from MQTT · auto-refresh every 5s</p>
                     </div>
                 </div>
                 <div className="badge online flex items-center gap-1.5" style={{ padding: '0.2rem 0.6rem' }}>
-                    <div className="status-dot green"></div> <span style={{ fontSize: '0.65rem' }}>Live</span>
+                    <div className={`status-dot ${history.length > 0 ? 'green' : 'red'}`}></div>
+                    <span style={{ fontSize: '0.65rem' }}>{history.length > 0 ? 'Live' : 'No Data'}</span>
                 </div>
             </div>
 
@@ -195,7 +214,13 @@ export default function HistoryTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {events.map((row) => (
+                        {events.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-tertiary)' }}>
+                                    Waiting for sensor data from MQTT...
+                                </td>
+                            </tr>
+                        ) : events.map((row) => (
                             <tr key={row.id}>
                                 <td>
                                     <div className="time-col gap-0.5">
@@ -236,7 +261,7 @@ export default function HistoryTable() {
                     <span className="flex items-center" style={{ gap: '0.375rem' }}><div className="status-dot yellow"></div> <span className="text-secondary">{warningCount} warning</span></span>
                     <span className="flex items-center" style={{ gap: '0.375rem' }}><div className="status-dot red"></div> <span className="text-secondary">{criticalCount} critical</span></span>
                 </div>
-                <div className="text-tertiary" style={{ fontSize: '0.7rem' }}>Auto-updating · new events appear at top</div>
+                <div className="text-tertiary" style={{ fontSize: '0.7rem' }}>Auto-updating · live from MQTT backend</div>
             </div>
         </div>
     );

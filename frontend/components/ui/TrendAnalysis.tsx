@@ -1,32 +1,10 @@
 'use client';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
+import { SensorData } from '@/hooks/useSensorData';
 
-const data = [
-    { time: '23:55', pv: 0.7 },
-    { time: '23:56', pv: 0.4 },
-    { time: '23:57', pv: 0.3 },
-    { time: '23:58', pv: 0.8 },
-    { time: '23:59', pv: 0.4 },
-    { time: '00:00', pv: 1.7 }
-];
-
-const dataTilt = [
-    { time: '23:55', pv: 1.75 },
-    { time: '23:56', pv: 1.95 },
-    { time: '23:57', pv: 0.0 },
-    { time: '23:58', pv: 1.95 },
-    { time: '23:59', pv: 0.3 },
-    { time: '00:00', pv: 1.6 }
-];
-
-const dataSway = [
-    { time: '23:55', pv: 1.1 },
-    { time: '23:56', pv: 1.48 },
-    { time: '23:57', pv: 0.8 },
-    { time: '23:58', pv: 1.48 },
-    { time: '23:59', pv: 0.35 },
-    { time: '00:00', pv: 1.15 }
-];
+interface TrendAnalysisProps {
+    history: SensorData[];
+}
 
 const CustomizedDot = (props: any) => {
     const { cx, cy, stroke, fill } = props;
@@ -35,7 +13,6 @@ const CustomizedDot = (props: any) => {
     );
 };
 
-// Custom Tooltip specifically styled for the dashboard
 const CustomTooltip = ({ active, payload, label, unit, color }: any) => {
     if (active && payload && payload.length) {
         return (
@@ -60,7 +37,38 @@ const CustomTooltip = ({ active, payload, label, unit, color }: any) => {
     return null;
 };
 
-export default function TrendAnalysis() {
+export default function TrendAnalysis({ history }: TrendAnalysisProps) {
+    // Transform API data for charts (take last 10 data points, reversed so oldest first)
+    const recentData = history.slice(0, 10).reverse();
+
+    const windData = recentData.map(d => ({
+        time: new Date(d.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        pv: d.wind_speed
+    }));
+
+    const tiltData = recentData.map(d => ({
+        time: new Date(d.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        pv: d.total_tilt
+    }));
+
+    const swayData = recentData.map(d => ({
+        time: new Date(d.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        pv: d.sway
+    }));
+
+    // Calculate dynamic Y-axis domains
+    const windValues = windData.map(d => d.pv);
+    const windMin = windValues.length > 0 ? Math.max(0, Math.floor(Math.min(...windValues) * 5) / 5) : 0;
+    const windMax = windValues.length > 0 ? Math.ceil(Math.max(...windValues) * 5) / 5 + 0.2 : 2;
+
+    const tiltValues = tiltData.map(d => d.pv);
+    const tiltMin = tiltValues.length > 0 ? Math.max(0, Math.floor(Math.min(...tiltValues) * 100) / 100) : 0;
+    const tiltMax = tiltValues.length > 0 ? Math.ceil(Math.max(...tiltValues) * 100) / 100 + 0.01 : 0.1;
+
+    const swayValues = swayData.map(d => d.pv);
+    const swayMin = swayValues.length > 0 ? Math.max(0, Math.floor(Math.min(...swayValues) / 5) * 5) : 0;
+    const swayMax = swayValues.length > 0 ? Math.ceil(Math.max(...swayValues) / 5) * 5 + 5 : 80;
+
     return (
         <div className="flex-col gap-3">
             <div className="section-header" style={{ marginBottom: 0 }}>
@@ -75,11 +83,11 @@ export default function TrendAnalysis() {
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Wind Speed Trend</h4>
-                        <div className="time-badge">Last 5 min</div>
+                        <div className="time-badge">Last {windData.length} readings</div>
                     </div>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={data} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                            <AreaChart data={windData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorTeal" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="var(--accent-teal)" stopOpacity={0.15} />
@@ -88,7 +96,7 @@ export default function TrendAnalysis() {
                                 </defs>
                                 <CartesianGrid strokeDasharray="1 0" stroke="rgba(255,255,255,0.05)" vertical={true} />
                                 <XAxis dataKey="time" stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} tickMargin={8} />
-                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[0.2, 1.8]} ticks={[0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8]} />
+                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[windMin, windMax]} />
                                 <Tooltip content={<CustomTooltip unit="knot" color="var(--accent-teal)" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area type="monotone" dataKey="pv" stroke="var(--accent-teal)" strokeWidth={2} fillOpacity={1} fill="url(#colorTeal)" dot={<CustomizedDot fill="var(--bg-main)" stroke="var(--accent-teal)" />} />
                             </AreaChart>
@@ -100,11 +108,11 @@ export default function TrendAnalysis() {
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Total Tilt Trend</h4>
-                        <div className="time-badge">Last 5 min</div>
+                        <div className="time-badge">Last {tiltData.length} readings</div>
                     </div>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={dataTilt} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                            <AreaChart data={tiltData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorRed" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="var(--accent-red)" stopOpacity={0.15} />
@@ -113,7 +121,7 @@ export default function TrendAnalysis() {
                                 </defs>
                                 <CartesianGrid strokeDasharray="1 0" stroke="rgba(255,255,255,0.05)" vertical={true} />
                                 <XAxis dataKey="time" stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} tickMargin={8} />
-                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[0, 2.0]} ticks={[0, 0.4, 0.8, 1.2, 1.6, 2.0]} />
+                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[tiltMin, tiltMax]} />
                                 <Tooltip content={<CustomTooltip unit="°" color="var(--accent-red)" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area type="monotone" dataKey="pv" stroke="var(--accent-red)" strokeWidth={2} fillOpacity={1} fill="url(#colorRed)" dot={<CustomizedDot fill="var(--bg-main)" stroke="var(--accent-red)" />} />
                             </AreaChart>
@@ -125,11 +133,11 @@ export default function TrendAnalysis() {
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Sway Trend</h4>
-                        <div className="time-badge">Last 5 min</div>
+                        <div className="time-badge">Last {swayData.length} readings</div>
                     </div>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={dataSway} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                            <AreaChart data={swayData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="var(--accent-blue)" stopOpacity={0.15} />
@@ -138,7 +146,7 @@ export default function TrendAnalysis() {
                                 </defs>
                                 <CartesianGrid strokeDasharray="1 0" stroke="rgba(255,255,255,0.05)" vertical={true} />
                                 <XAxis dataKey="time" stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} tickMargin={8} />
-                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[0.2, 1.6]} ticks={[0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]} />
+                                <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[swayMin, swayMax]} />
                                 <Tooltip content={<CustomTooltip unit="mm" color="var(--accent-blue)" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area type="monotone" dataKey="pv" stroke="var(--accent-blue)" strokeWidth={2} fillOpacity={1} fill="url(#colorBlue)" dot={<CustomizedDot fill="var(--bg-main)" stroke="var(--accent-blue)" />} />
                             </AreaChart>

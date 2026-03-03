@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { History, Wind, ArrowRightLeft, Droplet, ArrowUp, ArrowDown, Activity, Compass } from 'lucide-react';
+import { History, Wind, ArrowRightLeft, Droplet, ArrowUp, ArrowDown, Activity, Compass, Download } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
 
 interface HistoryTableProps {
@@ -158,6 +158,36 @@ export default function HistoryTable({ history }: HistoryTableProps) {
     const warningCount = events.filter(e => e.color === 'yellow').length;
     const criticalCount = events.filter(e => e.color === 'red').length;
 
+    const exportToExcel = () => {
+        const exportData = events.slice(0, 50);
+        if (exportData.length === 0) return;
+
+        const headers = ['Date', 'Time', 'Parameter', 'Previous', 'Current', 'Change', 'Status'];
+        const rows = exportData.map(e => [
+            e.date,
+            e.time,
+            e.param,
+            e.prev,
+            e.curr,
+            e.change,
+            e.status,
+        ]);
+
+        const csvContent = '\uFEFF' + [headers, ...rows]
+            .map(row => row.map(cell => `"${cell}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const now = new Date();
+        const filename = `SHM_History_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.csv`;
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="history-section flex-col" style={{ display: 'flex', height: '100%' }}>
 
@@ -171,9 +201,30 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                         <p className="section-subtitle">Live data from MQTT · auto-refresh every 5s</p>
                     </div>
                 </div>
-                <div className="badge online flex items-center gap-1.5" style={{ padding: '0.2rem 0.6rem' }}>
-                    <div className={`status-dot ${history.length > 0 ? 'green' : 'red'}`}></div>
-                    <span style={{ fontSize: '0.65rem' }}>{history.length > 0 ? 'Live' : 'No Data'}</span>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={exportToExcel}
+                        disabled={events.length === 0}
+                        className="badge flex items-center gap-1.5"
+                        style={{
+                            padding: '0.2rem 0.6rem',
+                            cursor: events.length > 0 ? 'pointer' : 'not-allowed',
+                            background: 'rgba(14, 165, 233, 0.1)',
+                            border: '1px solid rgba(14, 165, 233, 0.3)',
+                            color: '#38bdf8',
+                            opacity: events.length === 0 ? 0.4 : 1,
+                            transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={e => { if (events.length > 0) { e.currentTarget.style.background = 'rgba(14, 165, 233, 0.2)'; e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.5)'; } }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14, 165, 233, 0.1)'; e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.3)'; }}
+                    >
+                        <Download size={12} />
+                        <span style={{ fontSize: '0.65rem' }}>Export</span>
+                    </button>
+                    <div className="badge online flex items-center gap-1.5" style={{ padding: '0.2rem 0.6rem' }}>
+                        <div className={`status-dot ${history.length > 0 ? 'green' : 'red'}`}></div>
+                        <span style={{ fontSize: '0.65rem' }}>{history.length > 0 ? 'Live' : 'No Data'}</span>
+                    </div>
                 </div>
             </div>
 

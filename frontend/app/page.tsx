@@ -11,7 +11,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header latest={latest} history={history} />
       <HeroCard latest={latest} isConnected={isConnected} />
       <TelemetrySection latest={latest} isConnected={isConnected} />
       <TrendAnalysis history={history} />

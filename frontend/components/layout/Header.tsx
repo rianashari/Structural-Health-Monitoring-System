@@ -1,7 +1,9 @@
 'use client';
+import { useState } from 'react';
 import { FileDown } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
 import { generateReport } from '@/utils/generateReport';
+import ExportModal from '../ui/ExportModal';
 
 interface HeaderProps {
     latest?: SensorData | null;
@@ -9,8 +11,16 @@ interface HeaderProps {
 }
 
 export default function Header({ latest = null, history = [] }: HeaderProps) {
+    const [isExportOpen, setIsExportOpen] = useState(false);
+
     const handleDownload = () => {
+        setIsExportOpen(true);
+    };
+
+    const handleExportConfirm = (startDate: Date | null, endDate: Date | null) => {
+        // You could optionally filter history here based on start/end dates
         generateReport(latest, history);
+        setIsExportOpen(false);
     };
 
     return (
@@ -50,6 +60,12 @@ export default function Header({ latest = null, history = [] }: HeaderProps) {
                 <FileDown size={16} />
                 Download Report
             </button>
+
+            <ExportModal
+                isOpen={isExportOpen}
+                onClose={() => setIsExportOpen(false)}
+                onExport={handleExportConfirm}
+            />
         </header>
     );
 }

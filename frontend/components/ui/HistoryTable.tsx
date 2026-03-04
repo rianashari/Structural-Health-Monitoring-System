@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { History, Wind, ArrowRightLeft, Droplet, ArrowUp, ArrowDown, Activity, Compass, Download } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
+import ExportModal from './ExportModal';
 
 interface HistoryTableProps {
     history: SensorData[];
@@ -158,8 +159,31 @@ export default function HistoryTable({ history }: HistoryTableProps) {
     const warningCount = events.filter(e => e.color === 'yellow').length;
     const criticalCount = events.filter(e => e.color === 'red').length;
 
-    const exportToExcel = () => {
-        const exportData = events.slice(0, 50);
+    const [isExportOpen, setIsExportOpen] = useState(false);
+
+    const handleExportClick = () => {
+        setIsExportOpen(true);
+    };
+
+    const exportToExcelConfirm = (startDate: Date | null, endDate: Date | null) => {
+        setIsExportOpen(false);
+        // Optionally pass startDate and endDate if filtering is desired
+        let exportData = events;
+
+        if (startDate && endDate) {
+            exportData = events.filter(e => {
+                const eventDate = new Date(e.date + ' ' + e.time);
+                // Set start date to start of day, end date to end of day
+                const start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                return eventDate >= start && eventDate <= end;
+            });
+        }
+
+        exportData = exportData.slice(0, 50);
+
         if (exportData.length === 0) return;
 
         const headers = ['Date', 'Time', 'Parameter', 'Previous', 'Current', 'Change', 'Status'];
@@ -203,7 +227,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={exportToExcel}
+                        onClick={handleExportClick}
                         disabled={events.length === 0}
                         className="badge flex items-center gap-1.5"
                         style={{
@@ -227,6 +251,12 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                     </div>
                 </div>
             </div>
+
+            <ExportModal
+                isOpen={isExportOpen}
+                onClose={() => setIsExportOpen(false)}
+                onExport={exportToExcelConfirm}
+            />
 
             <div className="history-tabs flex justify-between items-center">
                 <div className="flex gap-2">

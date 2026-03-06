@@ -148,7 +148,7 @@ function CalendarView({
                             {d}
                         </div>
                     ))}
-                    {calendarGrid.map((week, i) => React.Fragment && week.map((dayObj, j) => {
+                    {calendarGrid.flatMap((week, i) => week.map((dayObj, j) => {
                         const isSelected = selectedDate &&
                             dayObj.date.getDate() === selectedDate.getDate() &&
                             dayObj.date.getMonth() === selectedDate.getMonth() &&
@@ -170,7 +170,7 @@ function CalendarView({
                                         color: isSelected ? '#ffffff' : (dayObj.isCurrentMonth ? '#8493a8' : '#2d3748'),
                                         background: isSelected ? accentColor : 'transparent',
                                         cursor: 'pointer',
-                                        border: isSelected && isStart ? '1px solid #14b8a6' : 'none', // slight highlight to start box
+                                        border: isSelected && isStart ? '1px solid #14b8a6' : 'none',
                                         transition: 'all 0.1s ease',
                                     }}
                                     onMouseEnter={(e) => {

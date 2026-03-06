@@ -44,8 +44,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8000:8000"
 
   # ============================================================
   # MQTT Publisher (Dummy Data Generator)
@@ -69,8 +67,6 @@ services:
       dockerfile: Dockerfile
     container_name: shm-frontend
     restart: always
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
 

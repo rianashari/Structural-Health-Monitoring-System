@@ -148,47 +148,51 @@ function CalendarView({
                             {d}
                         </div>
                     ))}
-                    {calendarGrid.map((week, i) => React.Fragment && week.map((dayObj, j) => {
-                        const isSelected = selectedDate &&
-                            dayObj.date.getDate() === selectedDate.getDate() &&
-                            dayObj.date.getMonth() === selectedDate.getMonth() &&
-                            dayObj.date.getFullYear() === selectedDate.getFullYear();
+                    {calendarGrid.map((week, i) => (
+                        <React.Fragment key={i}>
+                            {week.map((dayObj, j) => {
+                                const isSelected = selectedDate &&
+                                    dayObj.date.getDate() === selectedDate.getDate() &&
+                                    dayObj.date.getMonth() === selectedDate.getMonth() &&
+                                    dayObj.date.getFullYear() === selectedDate.getFullYear();
 
-                        return (
-                            <div key={`${i}-${j}`} style={{ display: 'flex', justifyContent: 'center' }}>
-                                <button
-                                    onClick={() => onSelectDate(dayObj.date)}
-                                    style={{
-                                        width: '32px',
-                                        height: '32px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '8px',
-                                        fontSize: '0.85rem',
-                                        fontWeight: isSelected ? 700 : 500,
-                                        color: isSelected ? '#ffffff' : (dayObj.isCurrentMonth ? '#8493a8' : '#2d3748'),
-                                        background: isSelected ? accentColor : 'transparent',
-                                        cursor: 'pointer',
-                                        border: isSelected && isStart ? '1px solid #14b8a6' : 'none', // slight highlight to start box
-                                        transition: 'all 0.1s ease',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!isSelected && dayObj.isCurrentMonth) {
-                                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!isSelected) {
-                                            e.currentTarget.style.background = 'transparent';
-                                        }
-                                    }}
-                                >
-                                    {dayObj.day}
-                                </button>
-                            </div>
-                        );
-                    }))}
+                                return (
+                                    <div key={`${i}-${j}`} style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <button
+                                            onClick={() => onSelectDate(dayObj.date)}
+                                            style={{
+                                                width: '32px',
+                                                height: '32px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '8px',
+                                                fontSize: '0.85rem',
+                                                fontWeight: isSelected ? 700 : 500,
+                                                color: isSelected ? '#ffffff' : (dayObj.isCurrentMonth ? '#8493a8' : '#2d3748'),
+                                                background: isSelected ? accentColor : 'transparent',
+                                                cursor: 'pointer',
+                                                border: isSelected && isStart ? '1px solid #14b8a6' : 'none',
+                                                transition: 'all 0.1s ease',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (!isSelected && dayObj.isCurrentMonth) {
+                                                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (!isSelected) {
+                                                    e.currentTarget.style.background = 'transparent';
+                                                }
+                                            }}
+                                        >
+                                            {dayObj.day}
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </React.Fragment>
+                    ))}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>

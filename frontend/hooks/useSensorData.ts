@@ -42,7 +42,6 @@ export function useSensorData(refreshInterval = 5000) {
     }, []);
 
     useEffect(() => {
-        if (!refreshInterval) return;
         fetchData();
         const interval = setInterval(fetchData, refreshInterval);
         return () => clearInterval(interval);

@@ -99,7 +99,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
             const prev = history[i + 1];
 
             // Find the parameter with the biggest relative change
-            let biggestParam: typeof params[number] = params[0];
+            let biggestParam = params[0];
             let biggestDiff = 0;
 
             for (const p of params) {

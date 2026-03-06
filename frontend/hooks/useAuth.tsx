@@ -1,68 +1,32 @@
 'use client';
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
 
-interface AuthContextType {
-    isAuthenticated: boolean;
-    username: string | null;
-    login: (username: string, password: string) => boolean;
-    logout: () => void;
-    isLoading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const VALID_USERNAME = 'nyk_verti';
-const VALID_PASSWORD = 'adminnyk123';
-const AUTH_KEY = 'shm_auth';
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [username, setUsername] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const stored = localStorage.getItem(AUTH_KEY);
-        if (stored) {
-            try {
-                const data = JSON.parse(stored);
-                if (data.username && data.authenticated) {
-                    setIsAuthenticated(true);
-                    setUsername(data.username);
-                }
-            } catch {
-                localStorage.removeItem(AUTH_KEY);
-            }
-        }
-        setIsLoading(false);
-    }, []);
-
-    const login = useCallback((user: string, pass: string): boolean => {
-        if (user === VALID_USERNAME && pass === VALID_PASSWORD) {
-            setIsAuthenticated(true);
-            setUsername(user);
-            localStorage.setItem(AUTH_KEY, JSON.stringify({ username: user, authenticated: true }));
-            return true;
-        }
-        return false;
-    }, []);
-
-    const logout = useCallback(() => {
-        setIsAuthenticated(false);
-        setUsername(null);
-        localStorage.removeItem(AUTH_KEY);
-    }, []);
-
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, username, login, logout, isLoading }}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [username, setUsername] = useState<string>('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const auth = localStorage.getItem('isAuthenticated') === 'true';
+            const user = localStorage.getItem('username') || '';
+            setIsAuthenticated(auth);
+            setUsername(user);
+
+            if (!auth) {
+                router.replace('/login');
+            }
+        }
+    }, [router]);
+
+    const logout = () => {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('username');
+        setIsAuthenticated(false);
+        router.replace('/login');
+    };
+
+    return { isAuthenticated, username, logout };
 }

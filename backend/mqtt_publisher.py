@@ -14,6 +14,7 @@ import time
 import random
 import paho.mqtt.client as mqtt
 from datetime import datetime
+import uuid
 
 # ============================================================
 # Konfigurasi MQTT
@@ -21,7 +22,7 @@ from datetime import datetime
 BROKER_HOST = 'broker.emqx.io'
 BROKER_PORT = 1883
 TOPIC = 'verticality/nyk/data'
-CLIENT_ID = 'shm_backend_publisher'
+CLIENT_ID = f'shm_backend_pub_{uuid.uuid4().hex[:8]}'
 PUBLISH_INTERVAL = 150  # detik
 
 

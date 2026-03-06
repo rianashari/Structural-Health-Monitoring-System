@@ -56,7 +56,8 @@ services:
       dockerfile: Dockerfile
     container_name: shm-mqtt-publisher
     restart: always
-    command: python mqtt_publisher.py
+    entrypoint: ["python"]
+    command: ["mqtt_publisher.py"]
     depends_on:
       - backend
 

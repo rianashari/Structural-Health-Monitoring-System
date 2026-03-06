@@ -69,7 +69,7 @@ services:
       dockerfile: Dockerfile
     container_name: shm-frontend
     restart: always
-    environtment:
+    environment:
       - NEXT_PUBLIC_API_URL=http://110.232.92.134:3001/api
     depends_on:
       - backend

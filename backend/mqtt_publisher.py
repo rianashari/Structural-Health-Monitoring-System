@@ -22,7 +22,7 @@ BROKER_HOST = 'broker.emqx.io'
 BROKER_PORT = 1883
 TOPIC = 'verticality/nyk/data'
 CLIENT_ID = 'shm_backend_publisher'
-PUBLISH_INTERVAL = 5  # detik
+PUBLISH_INTERVAL = 150  # detik
 
 
 def generate_dummy_data():

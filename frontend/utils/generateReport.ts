@@ -32,7 +32,7 @@ function getStatusColor(status: string): [number, number, number] {
     return [34, 197, 94];
 }
 
-export function generateReport(latest: SensorData | null, history: SensorData[]) {
+export function generateReport(latest: SensorData | null, history: SensorData[], startDate?: Date | null, endDate?: Date | null) {
     const doc = new jsPDF('p', 'mm', 'a4') as jsPDFWithAutoTable;
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
@@ -78,6 +78,15 @@ export function generateReport(latest: SensorData | null, history: SensorData[])
     doc.setFont('helvetica', 'bold');
     doc.text(now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), pageWidth - margin, 20, { align: 'right' });
     doc.text(now.toLocaleTimeString('id-ID'), pageWidth - margin, 26, { align: 'right' });
+
+    // Date range info
+    if (startDate || endDate) {
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        const rangeStart = startDate ? startDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'All';
+        const rangeEnd = endDate ? endDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Now';
+        doc.text(`Period: ${rangeStart} — ${rangeEnd}`, pageWidth - margin, 32, { align: 'right' });
+    }
 
     // Site info badges
     doc.setFontSize(7);
@@ -154,7 +163,10 @@ export function generateReport(latest: SensorData | null, history: SensorData[])
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...textMuted);
-    const dataInfo = `Total data points: ${history.length} | Data shown: ${Math.min(history.length, 50)} latest readings | Sensors active: ${latest ? 7 : 0}`;
+    const dateRangeText = (startDate || endDate)
+        ? `Period: ${startDate ? startDate.toLocaleDateString('id-ID') : 'Start'} — ${endDate ? endDate.toLocaleDateString('id-ID') : 'Now'}`
+        : 'All available data';
+    const dataInfo = `Total data points: ${history.length} | ${dateRangeText} | Sensors active: ${latest ? 7 : 0}`;
     doc.text(dataInfo, margin, y);
     y += 8;
 
@@ -237,10 +249,13 @@ export function generateReport(latest: SensorData | null, history: SensorData[])
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...textMuted);
-    doc.text('Last 50 sensor readings sorted by most recent', margin, y + 3);
+    const dateDesc = (startDate || endDate)
+        ? `Filtered data: ${startDate ? startDate.toLocaleDateString('id-ID') : 'Start'} — ${endDate ? endDate.toLocaleDateString('id-ID') : 'Now'}`
+        : 'All sensor readings sorted by most recent';
+    doc.text(`${dateDesc} (${history.length} records)`, margin, y + 3);
     y += 4;
 
-    const trendData = history.slice(0, 50);
+    const trendData = history;
     const trendRows = trendData.map(d => {
         const t = new Date(d.timestamp);
         return [
@@ -302,7 +317,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[])
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...textMuted);
-    doc.text('Significant parameter changes between consecutive readings (last 50)', margin, y + 3);
+    doc.text(`Significant parameter changes between consecutive readings (${trendData.length} records)`, margin, y + 3);
     y += 4;
 
     // Generate change events from history

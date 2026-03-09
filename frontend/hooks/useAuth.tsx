@@ -1,29 +1,52 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+
+// Session expires after 24 hours (in milliseconds)
+const SESSION_DURATION = 24 * 60 * 60 * 1000;
 
 export function useAuth() {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [username, setUsername] = useState<string>('');
 
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const auth = localStorage.getItem('isAuthenticated') === 'true';
-            const user = localStorage.getItem('username') || '';
-            setIsAuthenticated(auth);
-            setUsername(user);
+    const checkSession = useCallback(() => {
+        if (typeof window === 'undefined') return false;
 
-            if (!auth) {
-                router.replace('/login');
-            }
+        const auth = localStorage.getItem('isAuthenticated') === 'true';
+        const loginTime = localStorage.getItem('loginTime');
+
+        if (!auth || !loginTime) return false;
+
+        // Check if session has expired
+        const elapsed = Date.now() - parseInt(loginTime, 10);
+        if (elapsed > SESSION_DURATION) {
+            // Session expired — auto logout
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('username');
+            localStorage.removeItem('loginTime');
+            return false;
         }
-    }, [router]);
+
+        return true;
+    }, []);
+
+    useEffect(() => {
+        const valid = checkSession();
+        const user = localStorage.getItem('username') || '';
+        setIsAuthenticated(valid);
+        setUsername(user);
+
+        if (!valid) {
+            router.replace('/login');
+        }
+    }, [router, checkSession]);
 
     const logout = () => {
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('username');
+        localStorage.removeItem('loginTime');
         setIsAuthenticated(false);
         router.replace('/login');
     };

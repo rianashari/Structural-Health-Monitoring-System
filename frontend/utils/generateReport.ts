@@ -32,7 +32,14 @@ function getStatusColor(status: string): [number, number, number] {
     return [34, 197, 94];
 }
 
-export function generateReport(latest: SensorData | null, history: SensorData[], startDate?: Date | null, endDate?: Date | null) {
+interface SiteInfo {
+    name?: string;
+    deviceId?: string;
+    towerType?: string;
+    sensorCount?: number;
+}
+
+export function generateReport(latest: SensorData | null, history: SensorData[], startDate?: Date | null, endDate?: Date | null, siteInfo?: SiteInfo) {
     const doc = new jsPDF('p', 'mm', 'a4') as jsPDFWithAutoTable;
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
@@ -91,7 +98,10 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     // Site info badges
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    const badges = ['Site: Nayaka WS', 'Tower ID: SDA-07-063', 'Type: Monopole', 'Height: 30m'];
+    const siteName = siteInfo?.name ?? 'SHM Site';
+    const siteDeviceId = siteInfo?.deviceId ?? latest?.device_id ?? '-';
+    const siteTowerType = siteInfo?.towerType ?? 'Monopole';
+    const badges = [`Site: ${siteName}`, `Device: ${siteDeviceId}`, `Type: ${siteTowerType}`];
     let badgeX = margin;
     badges.forEach(badge => {
         const w = doc.getTextWidth(badge) + 6;
@@ -412,13 +422,14 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         doc.setFontSize(6.5);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...textMuted);
-        doc.text('Auto-generated report · Structural Health Monitoring System · Nayaka WS', margin, pageH - 7);
+        doc.text(`Auto-generated report · Structural Health Monitoring System · ${siteName} (${siteDeviceId})`, margin, pageH - 7);
         doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageH - 7, { align: 'right' });
     }
 
     // ============================================================
     // SAVE
     // ============================================================
-    const filename = `SHM_Report_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.pdf`;
+    const deviceTag = siteInfo?.deviceId ? `_${siteInfo.deviceId}` : '';
+    const filename = `SHM_Report${deviceTag}_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.pdf`;
     doc.save(filename);
 }

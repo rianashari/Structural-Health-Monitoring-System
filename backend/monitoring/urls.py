@@ -5,4 +5,5 @@ urlpatterns = [
     path('sensor-data/', views.SensorDataListCreateView.as_view(), name='sensor-data-list'),
     path('sensor-data/latest/', views.sensor_data_latest, name='sensor-data-latest'),
     path('sensor-data/history/', views.sensor_data_history, name='sensor-data-history'),
+    path('sensor-data/sites-status/', views.sensor_data_sites_status, name='sensor-data-sites-status'),
 ]

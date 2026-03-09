@@ -9,6 +9,7 @@ class SensorDataSerializer(serializers.ModelSerializer):
         model = SensorData
         fields = [
             'id',
+            'device_id',
             'timestamp',
             'wind_speed',
             'pitch',

@@ -1,18 +1,26 @@
 'use client';
 import { RefreshCw, MapPin, Hash, Ratio, ArrowUp } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
+import { Site } from '@/data/sites';
 
 interface HeroCardProps {
     latest: SensorData | null;
     isConnected: boolean;
+    site?: Site;
+    deviceId?: string;
 }
 
-export default function HeroCard({ latest, isConnected }: HeroCardProps) {
+export default function HeroCard({ latest, isConnected, site, deviceId }: HeroCardProps) {
     const formatTimestamp = (ts: string) => {
         const d = new Date(ts);
         const pad = (n: number) => n.toString().padStart(2, '0');
         return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     };
+
+    const siteName = site?.name ?? 'SHM Site';
+    const siteCode = deviceId ?? site?.code ?? '-';
+    const towerType = site?.towerType ?? 'Monopole';
+    const sensorCount = site?.sensorCount ?? '-';
 
     return (
         <div className="hero-card">
@@ -40,7 +48,7 @@ export default function HeroCard({ latest, isConnected }: HeroCardProps) {
                 </div>
 
                 <div>
-                    <h2 className="hero-title">Nayaka WS</h2>
+                    <h2 className="hero-title">{siteName}</h2>
                     <p className="hero-subtitle">Vertically Monitored IoT Asset</p>
                 </div>
 
@@ -49,15 +57,15 @@ export default function HeroCard({ latest, isConnected }: HeroCardProps) {
                         <div className="stat-icon-wrap"><MapPin size={14} /></div>
                         <div className="flex-col" style={{ gap: '0' }}>
                             <span className="stat-label">Site Name</span>
-                            <span className="stat-value text-primary">Nayaka WS</span>
+                            <span className="stat-value text-primary">{siteName}</span>
                         </div>
                     </div>
 
                     <div className="stat-item">
                         <div className="stat-icon-wrap"><Hash size={14} /></div>
                         <div className="flex-col" style={{ gap: '0' }}>
-                            <span className="stat-label">Tower ID</span>
-                            <span className="stat-value text-primary">SDA-07-063</span>
+                            <span className="stat-label">Device ID</span>
+                            <span className="stat-value text-primary">{siteCode}</span>
                         </div>
                     </div>
 
@@ -65,15 +73,15 @@ export default function HeroCard({ latest, isConnected }: HeroCardProps) {
                         <div className="stat-icon-wrap"><Ratio size={14} /></div>
                         <div className="flex-col" style={{ gap: '0' }}>
                             <span className="stat-label">Tower Type</span>
-                            <span className="stat-value text-primary">Monopole</span>
+                            <span className="stat-value text-primary">{towerType}</span>
                         </div>
                     </div>
 
                     <div className="stat-item">
                         <div className="stat-icon-wrap"><ArrowUp size={14} /></div>
                         <div className="flex-col" style={{ gap: '0' }}>
-                            <span className="stat-label">Tower Height</span>
-                            <span className="stat-value text-primary">30 Meter</span>
+                            <span className="stat-label">Sensors</span>
+                            <span className="stat-value text-primary">{sensorCount} Active</span>
                         </div>
                     </div>
                 </div>

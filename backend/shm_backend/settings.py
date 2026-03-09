@@ -130,7 +130,9 @@ REST_FRAMEWORK = {
 # ============================================================
 # MQTT Broker Configuration
 # ============================================================
-MQTT_BROKER_HOST = 'broker.emqx.io'
+MQTT_BROKER_HOST = '202.155.90.125'
 MQTT_BROKER_PORT = 1883
-MQTT_TOPIC = 'verticality/nyk/data'
+MQTT_USERNAME = 'ver_sensor'
+MQTT_PASSWORD = 'nyk@123'
+MQTT_TOPIC = 'tower/bts/nyk/verticality/data/site/dmt/telemetry'
 MQTT_CLIENT_ID_PREFIX = 'shm_backend_'

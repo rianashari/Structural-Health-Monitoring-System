@@ -5,6 +5,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export interface SensorData {
     id: number;
+    device_id?: string;
     timestamp: string;
     wind_speed: number;
     pitch: number;
@@ -14,16 +15,21 @@ export interface SensorData {
     total_tilt: number;
 }
 
-export function useSensorData(refreshInterval = 5000) {
+export function useSensorData(refreshInterval = 5000, deviceId?: string) {
     const [latest, setLatest] = useState<SensorData | null>(null);
     const [history, setHistory] = useState<SensorData[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
+            const params = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : '';
+            const historyParams = deviceId
+                ? `?limit=100&device_id=${encodeURIComponent(deviceId)}`
+                : '?limit=100';
+
             const [latestRes, historyRes] = await Promise.all([
-                fetch(`${API_BASE}/sensor-data/latest/`),
-                fetch(`${API_BASE}/sensor-data/history/?limit=100`),
+                fetch(`${API_BASE}/sensor-data/latest/${params}`),
+                fetch(`${API_BASE}/sensor-data/history/${historyParams}`),
             ]);
 
             if (latestRes.ok) {
@@ -39,7 +45,7 @@ export function useSensorData(refreshInterval = 5000) {
         } catch {
             setIsConnected(false);
         }
-    }, []);
+    }, [deviceId]);
 
     useEffect(() => {
         fetchData();

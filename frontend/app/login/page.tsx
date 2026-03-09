@@ -46,7 +46,7 @@ export default function LoginPage() {
         if (username === VALID_USERNAME && password === VALID_PASSWORD) {
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('username', username);
-            router.push('/');
+            router.push('/rectifier-site-map');
         } else {
             setError('Username atau password salah. Silakan coba lagi.');
             setIsLoading(false);

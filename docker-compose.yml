@@ -46,20 +46,6 @@ services:
       - "8000:8000"
 
   # ============================================================
-  # MQTT Publisher (Dummy Data Generator)
-  # ============================================================
-  mqtt-publisher:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: shm-mqtt-publisher
-    restart: always
-    entrypoint: ["python"]
-    command: ["mqtt_publisher.py"]
-    depends_on:
-      - backend
-
-  # ============================================================
   # Next.js Frontend
   # ============================================================
   frontend:

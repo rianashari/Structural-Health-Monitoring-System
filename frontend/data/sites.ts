@@ -32,7 +32,7 @@ export const sites: Site[] = [
         id: 'krs-07-020',
         name: 'Sumber Taman 2',
         siteId: '13TS01B0245',
-        code: 'KRS-07-020-GS',
+        code: 'KRS-07-020-MS',
         lat: -7.76992,
         lng: 113.24447,
         area: 'AREA 2',

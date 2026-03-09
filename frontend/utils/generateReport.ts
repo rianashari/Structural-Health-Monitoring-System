@@ -36,7 +36,7 @@ interface SiteInfo {
     name?: string;
     deviceId?: string;
     towerType?: string;
-    sensorCount?: number;
+    towerHeight?: number;
 }
 
 export function generateReport(latest: SensorData | null, history: SensorData[], startDate?: Date | null, endDate?: Date | null, siteInfo?: SiteInfo) {

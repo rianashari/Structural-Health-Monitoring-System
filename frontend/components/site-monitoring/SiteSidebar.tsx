@@ -91,7 +91,7 @@ export default function SiteSidebar({ sites, selectedSiteId, onSelectSite }: Sit
                             <span className="site-sidebar-item-area">{site.area}</span>
                             <div className="site-sidebar-item-meta">
                                 <Signal size={10} />
-                                <span>{site.sensorCount}</span>
+                                <span>{site.towerHeight}m</span>
                             </div>
                             <ChevronRight size={14} className="site-sidebar-chevron" />
                         </div>

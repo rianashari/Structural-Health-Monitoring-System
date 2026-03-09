@@ -20,7 +20,7 @@ export default function HeroCard({ latest, isConnected, site, deviceId }: HeroCa
     const siteName = site?.name ?? 'SHM Site';
     const siteCode = deviceId ?? site?.code ?? '-';
     const towerType = site?.towerType ?? 'Monopole';
-    const sensorCount = site?.sensorCount ?? '-';
+    const towerHeight = site?.towerHeight ?? '-';
 
     return (
         <div className="hero-card">
@@ -80,8 +80,8 @@ export default function HeroCard({ latest, isConnected, site, deviceId }: HeroCa
                     <div className="stat-item">
                         <div className="stat-icon-wrap"><ArrowUp size={14} /></div>
                         <div className="flex-col" style={{ gap: '0' }}>
-                            <span className="stat-label">Sensors</span>
-                            <span className="stat-value text-primary">{sensorCount} Active</span>
+                            <span className="stat-label">Tinggi</span>
+                            <span className="stat-value text-primary">{towerHeight} Meter</span>
                         </div>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ export interface Site {
     kabupaten: string;
     status: 'online' | 'offline' | 'warning';
     towerType: string;
-    sensorCount: number;
+    towerHeight: number;
 }
 
 export const sites: Site[] = [
@@ -26,7 +26,7 @@ export const sites: Site[] = [
         kabupaten: 'Kota Adm. Jakarta Timur',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 30,
+        towerHeight: 30,
     },
     {
         id: 'krs-07-020',
@@ -40,7 +40,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Probolinggo',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 30,
+        towerHeight: 30,
     },
     {
         id: 'bks-04-079',
@@ -54,7 +54,7 @@ export const sites: Site[] = [
         kabupaten: 'Kota Bekasi',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'ggp-04-156',
@@ -68,7 +68,7 @@ export const sites: Site[] = [
         kabupaten: 'Kota Bekasi',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'ckr-04-181',
@@ -82,7 +82,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Bekasi',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'spa-05-017',
@@ -96,7 +96,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Tasikmalaya',
         status: 'offline',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'cms-05-279',
@@ -110,7 +110,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Sumedang',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'kds-06-039',
@@ -124,7 +124,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Kudus',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'pti-06-080',
@@ -138,7 +138,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Pati',
         status: 'warning',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
     {
         id: 'tbn-07-059',
@@ -152,6 +152,6 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Tuban',
         status: 'online',
         towerType: 'Monopole',
-        sensorCount: 42,
+        towerHeight: 42,
     },
 ];

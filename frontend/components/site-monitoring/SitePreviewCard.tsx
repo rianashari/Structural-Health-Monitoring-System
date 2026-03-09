@@ -68,9 +68,9 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                 </div>
                 <div className="site-preview-info-row">
                     <span className="site-preview-label">
-                        <Signal size={12} /> Sensors
+                        <Signal size={12} /> Tinggi
                     </span>
-                    <span className="site-preview-value">{site.sensorCount} Active</span>
+                    <span className="site-preview-value">{site.towerHeight} Meter</span>
                 </div>
                 <div className="site-preview-info-row">
                     <span className="site-preview-label">Tower</span>

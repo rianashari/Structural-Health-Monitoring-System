@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Session expires after 24 hours (in milliseconds)
-const SESSION_DURATION = 24 * 60 * 60 * 1000;
+const SESSION_DURATION = 8 * 60 * 60 * 1000;
 
 export function useAuth() {
     const router = useRouter();

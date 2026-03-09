@@ -16,10 +16,21 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
 
-    // Redirect if already logged in
+    // Redirect if already logged in with valid session
     useEffect(() => {
-        if (typeof window !== 'undefined' && localStorage.getItem('isAuthenticated') === 'true') {
-            router.replace('/');
+        if (typeof window !== 'undefined') {
+            const auth = localStorage.getItem('isAuthenticated') === 'true';
+            const loginTime = localStorage.getItem('loginTime');
+            const SESSION_DURATION = 8 * 60 * 60 * 1000;
+
+            if (auth && loginTime && (Date.now() - parseInt(loginTime, 10)) < SESSION_DURATION) {
+                router.replace('/');
+            } else if (auth) {
+                // Session expired or missing loginTime — clear stale auth
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('username');
+                localStorage.removeItem('loginTime');
+            }
         }
     }, [router]);
 

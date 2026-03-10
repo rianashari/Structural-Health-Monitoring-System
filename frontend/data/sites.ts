@@ -57,10 +57,10 @@ export const sites: Site[] = [
         towerHeight: 42,
     },
     {
-        id: 'ggp-04-156',
+        id: 'ggp-04-196',
         name: 'SMU 64',
         siteId: '13TS10L1554',
-        code: 'GGP-04-156-MS',
+        code: 'GGP-04-196-MS',
         lat: -6.14977,
         lng: 106.96827,
         area: 'AREA 2',

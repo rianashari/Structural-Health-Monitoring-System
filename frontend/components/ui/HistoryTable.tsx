@@ -68,13 +68,25 @@ function timeAgo(timestamp: string): string {
 
 export default function HistoryTable({ history }: HistoryTableProps) {
     const [events, setEvents] = useState<HistoryEvent[]>([]);
+    const [newRowIds, setNewRowIds] = useState<number[]>([]);
     const prevHistoryRef = useRef<SensorData[]>([]);
 
     useEffect(() => {
         if (history.length < 2) return;
 
         // Only regenerate events when history changes
-        if (JSON.stringify(history.map(h => h.id)) === JSON.stringify(prevHistoryRef.current.map(h => h.id))) return;
+        const currentIds = history.map(h => h.id);
+        const prevIds = prevHistoryRef.current.map(h => h.id);
+        if (JSON.stringify(currentIds) === JSON.stringify(prevIds)) return;
+        
+        const addedIds = currentIds.filter(id => !prevIds.includes(id) && prevIds.length > 0);
+        if (addedIds.length > 0) {
+            setNewRowIds(prev => [...prev, ...addedIds]);
+            setTimeout(() => {
+                setNewRowIds(prev => prev.filter(id => !addedIds.includes(id)));
+            }, 2000);
+        }
+
         prevHistoryRef.current = history;
 
         const newEvents: HistoryEvent[] = [];
@@ -214,6 +226,42 @@ export default function HistoryTable({ history }: HistoryTableProps) {
 
     return (
         <div className="history-section flex-col" style={{ display: 'flex', height: '100%' }}>
+            <style>{`
+                @keyframes rowHighlight {
+                    0% { background-color: rgba(14, 189, 181, 0.15); }
+                    10% { background-color: rgba(14, 189, 181, 0.2); }
+                    100% { background-color: transparent; }
+                }
+                .new-row {
+                    animation: rowHighlight 2s ease-out forwards;
+                }
+                .new-row td:first-child::before {
+                    content: '';
+                    position: absolute;
+                    left: -0.5rem;
+                    top: 0;
+                    bottom: 0;
+                    width: 3px;
+                    background-color: var(--accent-teal);
+                    box-shadow: 0 0 8px var(--accent-teal);
+                    border-radius: 4px;
+                }
+                .new-badge {
+                    background-color: rgba(14, 189, 181, 0.15);
+                    color: var(--accent-teal);
+                    border: 1px solid rgba(14, 189, 181, 0.3);
+                    font-size: 0.55rem;
+                    padding: 0.15rem 0.4rem;
+                    border-radius: 4px;
+                    margin-left: 0.5rem;
+                    font-weight: 700;
+                    letter-spacing: 0.05em;
+                    animation: pulse-icon 2s infinite ease-in-out;
+                }
+                .history-table td {
+                    position: relative;
+                }
+            `}</style>
 
             <div className="section-header" style={{ marginBottom: '1.25rem' }}>
                 <div className="section-title-wrap">
@@ -221,7 +269,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                         <History size={20} />
                     </div>
                     <div className="flex-col" style={{ gap: '0.1rem' }}>
-                        <h3 className="section-title" style={{ fontSize: '0.875rem' }}>Parameter Change History</h3>
+                        <h3 className="section-title" style={{ fontSize: '0.875rem' }}>History</h3>
                         <p className="section-subtitle">Live data from MQTT · auto-refresh every 5s</p>
                     </div>
                 </div>
@@ -302,7 +350,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                                 </td>
                             </tr>
                         ) : events.map((row) => (
-                            <tr key={row.id}>
+                            <tr key={row.id} className={newRowIds.includes(row.id) ? "new-row" : ""}>
                                 <td>
                                     <div className="time-col gap-0.5">
                                         <span className="text-tertiary" style={{ fontSize: '0.6rem', fontWeight: 500 }}>{row.date}</span>
@@ -316,6 +364,9 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                                     <div className="param-name text-secondary">
                                         <div className="param-icon-wrap">{row.icon}</div>
                                         {row.param}
+                                        {newRowIds.includes(row.id) && (
+                                            <span className="new-badge">NEW</span>
+                                        )}
                                     </div>
                                 </td>
                                 <td className="text-tertiary font-mono" style={{ fontSize: '0.75rem' }}>{row.prev}</td>

@@ -74,7 +74,7 @@ export default function Header({ latest = null, history = [], onLogout, siteName
         <header style={{ paddingBottom: '0.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
                 <button
-                    onClick={() => router.push('/rectifier-site-map')}
+                    onClick={() => router.push('/site-map')}
                     className="back-to-map-btn"
                     style={{
                         display: 'flex',

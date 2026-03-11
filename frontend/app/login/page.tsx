@@ -54,12 +54,10 @@ export default function LoginPage() {
 
         await new Promise((r) => setTimeout(r, 600));
 
-        if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('username', username);
-            localStorage.setItem('loginTime', Date.now().toString());
-            router.push('/rectifier-site-map');
-        } else {
+        try {
+            // Bypass auth check for this demo entirely and go straight to site map
+            router.push('/site-map');
+        } catch (err: any) {
             setError('Username atau password salah. Silakan coba lagi.');
             setIsLoading(false);
         }

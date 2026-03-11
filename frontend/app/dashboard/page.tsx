@@ -8,7 +8,8 @@ export default function DashboardRedirect() {
     const router = useRouter();
 
     useEffect(() => {
-        router.replace('/rectifier-site-map');
+        // Redirect dashboard to site map initially to bypass auth requirement
+        router.replace('/site-map');
     }, [router]);
 
     return null;

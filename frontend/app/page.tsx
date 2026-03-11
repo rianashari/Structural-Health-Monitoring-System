@@ -7,7 +7,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/rectifier-site-map');
+    // Redirect everyone to the site map directly initially
+    router.replace('/site-map');
   }, [router]);
 
   return (

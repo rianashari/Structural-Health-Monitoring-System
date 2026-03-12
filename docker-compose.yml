@@ -55,7 +55,7 @@ services:
     container_name: shm-frontend
     restart: always
     environment:
-      - NEXT_PUBLIC_API_URL=http://110.232.92.134:3001/api
+      - NEXT_PUBLIC_API_URL=https://110.232.92.134:3001/api
     depends_on:
       - backend
 

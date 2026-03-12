@@ -52,7 +52,7 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
     return (
         <div className="site-preview-card">
             <div className="site-preview-header">
-                <div className="site-preview-title-wrap">
+                <div className="site-preview-title-wrap" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
                     <h3 className="site-preview-name">{site.name}</h3>
                     <span
                         className="site-preview-status"
@@ -84,10 +84,6 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                     <span className="site-preview-value">{site.kabupaten}</span>
                 </div>
                 <div className="site-preview-info-row">
-                    <span className="site-preview-label">Region</span>
-                    <span className="site-preview-value">{site.region}</span>
-                </div>
-                <div className="site-preview-info-row">
                     <span className="site-preview-label">
                         <Signal size={12} /> Tinggi
                     </span>
@@ -96,12 +92,6 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                 <div className="site-preview-info-row">
                     <span className="site-preview-label">Tower</span>
                     <span className="site-preview-value">{site.towerType}</span>
-                </div>
-                <div className="site-preview-info-row">
-                    <span className="site-preview-label">Coordinates</span>
-                    <span className="site-preview-value font-mono" style={{ fontSize: '0.65rem' }}>
-                        {site.lat.toFixed(5)}, {site.lng.toFixed(5)}
-                    </span>
                 </div>
 
                 <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>

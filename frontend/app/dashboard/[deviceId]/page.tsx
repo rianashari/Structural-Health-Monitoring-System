@@ -7,6 +7,7 @@ import TelemetrySection from '@/components/ui/TelemetrySection';
 import TrendAnalysis from '@/components/ui/TrendAnalysis';
 import HistoryTable from '@/components/ui/HistoryTable';
 import { useSensorData } from '@/hooks/useSensorData';
+import { useSitesStatus } from '@/hooks/useSitesStatus';
 import { useAuth } from '@/hooks/useAuth';
 import { sites } from '@/data/sites';
 
@@ -18,7 +19,12 @@ export default function DashboardPage() {
     // Find site info from sites data by matching code (device_id)
     const site = sites.find(s => s.code === deviceId);
 
-    const { latest, history, isConnected } = useSensorData(5000, deviceId);
+    const { latest, history } = useSensorData(5000, deviceId);
+
+    // Use same status logic as the map (timestamp-based: <5min=online, <30min=warning, >30min=offline)
+    const liveStatuses = useSitesStatus(15000);
+    const deviceStatus = liveStatuses.find(s => s.device_id === deviceId);
+    const isConnected = deviceStatus ? deviceStatus.live_status === 'online' : false;
 
     // Show nothing while checking auth
     if (isAuthenticated === null) {

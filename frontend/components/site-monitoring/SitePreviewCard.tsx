@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { MapPin, Signal, ExternalLink } from 'lucide-react';
+import { MapPin, Signal, ExternalLink, Activity, Wind, Compass, ArrowRightLeft, Droplet, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { Site } from '@/data/sites';
+import { useSensorData } from '@/hooks/useSensorData';
 
 interface SitePreviewCardProps {
     site: Site;
@@ -11,6 +12,7 @@ interface SitePreviewCardProps {
 
 export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps) {
     const router = useRouter();
+    const { latest } = useSensorData(5000, site.code);
 
     const statusColor = (status: string) => {
         if (status === 'online') return '#08b87c';
@@ -23,6 +25,43 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
         if (status === 'warning') return 'rgba(234, 179, 8, 0.15)';
         return 'rgba(244, 63, 94, 0.15)';
     };
+
+    // Derived tower health logic from telemetry parameters
+    const windSpeed = latest?.wind_speed ?? 0;
+    const pitch = latest?.pitch ?? 0;
+    const roll = latest?.roll ?? 0;
+    const sway = latest?.sway ?? 0;
+    const totalTilt = latest?.total_tilt ?? 0;
+
+    const swayWarning = sway > 30;
+    const swayCritical = sway > 50;
+    const tiltWarning = totalTilt > 0.05;
+    const windWarning = windSpeed > 10;
+    const pitchWarning = Math.abs(pitch) > 2;
+    const rollWarning = Math.abs(roll) > 2;
+
+    const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0) + (windWarning ? 1 : 0) + (pitchWarning ? 1 : 0) + (rollWarning ? 1 : 0);
+    const criticalCount = swayCritical ? 1 : 0;
+
+    let towerStatus = 'TOLERANCE';
+    let alertColor = 'var(--accent-green)';
+    let alertBg = 'rgba(8, 184, 124, 0.1)';
+    let alertBorder = 'rgba(8, 184, 124, 0.4)';
+    let recommendation = 'System structural integrity is optimal.';
+
+    if (criticalCount > 0) {
+        towerStatus = 'CRITICAL';
+        alertColor = 'var(--accent-red)';
+        alertBg = 'rgba(244, 63, 94, 0.15)';
+        alertBorder = 'rgba(244, 63, 94, 0.6)';
+        recommendation = 'Critical threshold exceeded.';
+    } else if (warningCount > 0) {
+        towerStatus = 'WARNING';
+        alertColor = 'var(--accent-yellow)';
+        alertBg = 'rgba(234, 179, 8, 0.15)';
+        alertBorder = 'rgba(234, 179, 8, 0.6)';
+        recommendation = 'Sub-optimal readings detected.';
+    }
 
     const handleOpenDashboard = () => {
         router.push(`/dashboard/${site.code}`);
@@ -81,6 +120,68 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                     <span className="site-preview-value font-mono" style={{ fontSize: '0.65rem' }}>
                         {site.lat.toFixed(5)}, {site.lng.toFixed(5)}
                     </span>
+                </div>
+
+                <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Live Telemetry</div>
+
+                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                        <span className="site-preview-label"><Wind size={10} style={{ marginRight: '4px' }} /> Wind Speed</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.wind_speed.toFixed(2) : '--'} knot</span>
+                    </div>
+                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                        <span className="site-preview-label"><Compass size={10} style={{ marginRight: '4px' }} /> Pitch</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.pitch.toFixed(3) : '--'}°</span>
+                    </div>
+                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                        <span className="site-preview-label"><Activity size={10} style={{ marginRight: '4px' }} /> Roll</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.roll.toFixed(3) : '--'}°</span>
+                    </div>
+                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                        <span className="site-preview-label"><ArrowRightLeft size={10} style={{ marginRight: '4px' }} /> Sway</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.sway.toFixed(1) : '--'} mm</span>
+                    </div>
+                    <div className="site-preview-info-row" style={{ marginBottom: '0' }}>
+                        <span className="site-preview-label"><Droplet size={10} style={{ marginRight: '4px' }} /> Total Tilt</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.total_tilt.toFixed(4) : '--'}°</span>
+                    </div>
+
+                    {/* Alerts & Notifications Section directly synced with Tower Health Logic */}
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontSize: '0.6rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Alerts & Notifications</div>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            background: alertBg,
+                            border: `1px solid ${alertBorder}`,
+                            borderRadius: '8px',
+                            padding: '0.75rem',
+                            gap: '0.75rem'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '6px',
+                                color: alertColor,
+                                background: 'rgba(0,0,0,0.2)',
+                                border: `1px solid ${alertBorder}`
+                            }}>
+                                {towerStatus === 'CRITICAL' ? <AlertTriangle size={16} className="pulsing-icon" /> : towerStatus === 'WARNING' ? <AlertTriangle size={16} /> : <ShieldCheck size={16} />}
+                            </div>
+                            <div className="flex-col" style={{ gap: '0.1rem', flex: 1 }}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: alertColor, letterSpacing: '0.05em' }}>
+                                    {towerStatus}
+                                </div>
+                                <div style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>
+                                    {latest ? recommendation : 'Waiting for live data...'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

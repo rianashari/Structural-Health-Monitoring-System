@@ -26,46 +26,26 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
     const tiltRate = latest?.tilt_rate ?? 0;
     const sway = latest?.sway ?? 0;
     const totalTilt = latest?.total_tilt ?? 0;
+    const indikator = latest?.indikator ?? 'tolerance';
 
-    const maxWind = 19.44;
+    const maxWind = 35;
     const windPercent = Math.min((windSpeed / maxWind) * 100, 100);
 
     const hasPitch = latest !== null && pitch !== 0;
     const hasRoll = latest !== null && roll !== 0;
 
-    // Determine system status based on thresholds
-    const swayWarning = sway > 30;
-    const swayCritical = sway > 50;
-    const tiltWarning = totalTilt > 0.05;
-    const windWarning = windSpeed > 10;
-    const pitchWarning = Math.abs(pitch) > 2;
-    const rollWarning = Math.abs(roll) > 2;
+    // Status berdasarkan indikator dari MQTT
+    const isTolerance = indikator === 'tolerance';
+    const towerStatus = isTolerance ? 'TOLERANCE' : 'INTOLERANCE';
+    const statusColor = isTolerance ? 'var(--accent-green)' : 'var(--accent-red)';
+    const statusBg = isTolerance ? 'rgba(8, 184, 124, 0.1)' : 'rgba(244, 63, 94, 0.15)';
+    const statusBorder = isTolerance ? 'rgba(8, 184, 124, 0.4)' : 'rgba(244, 63, 94, 0.6)';
+    const recommendation = isTolerance
+        ? 'System structural integrity is optimal.'
+        : 'Intolerance detected. Immediate inspection advised.';
 
-    const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0) + (windWarning ? 1 : 0) + (pitchWarning ? 1 : 0) + (rollWarning ? 1 : 0);
-    const criticalCount = swayCritical ? 1 : 0;
-
-    let towerStatus = 'TOLERANCE';
-    let statusColor = 'var(--accent-green)';
-    let statusBg = 'rgba(8, 184, 124, 0.1)';
-    let statusBorder = 'rgba(8, 184, 124, 0.4)';
-    let recommendation = 'System structural integrity is optimal.';
-
-    if (criticalCount > 0) {
-        towerStatus = 'CRITICAL';
-        statusColor = 'var(--accent-red)';
-        statusBg = 'rgba(244, 63, 94, 0.15)';
-        statusBorder = 'rgba(244, 63, 94, 0.6)';
-        recommendation = 'Critical threshold exceeded. Immediate inspection advised.';
-    } else if (warningCount > 0) {
-        towerStatus = 'WARNING';
-        statusColor = 'var(--accent-yellow)';
-        statusBg = 'rgba(234, 179, 8, 0.15)';
-        statusBorder = 'rgba(234, 179, 8, 0.6)';
-        recommendation = 'Sub-optimal readings detected. Monitor closely.';
-    }
-
-    const systemStatus = criticalCount > 0 ? 'Critical' : warningCount > 0 ? 'Warning' : 'All Clear';
-    const statusDot = criticalCount > 0 ? 'red' : warningCount > 0 ? 'yellow' : 'green';
+    const systemStatus = isTolerance ? 'All Clear' : 'Intolerance';
+    const statusDot = isTolerance ? 'green' : 'red';
 
     const activeSensors = latest ? 7 : 0;
 
@@ -107,7 +87,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                     </div>
 
                     <div className="status-tags">
-                        <div className="status-tag"><Settings2 size={10} /> {warningCount === 0 ? 'Parameters in Range' : `${warningCount} Parameter Warning`}</div>
+                        <div className="status-tag"><Settings2 size={10} /> {isTolerance ? 'Parameters in Range' : 'Parameter Intolerance'}</div>
                         <div className="status-tag"><Cpu size={10} /> Sensors Operational</div>
                         <div className="status-tag"><Wifi size={10} /> {isConnected ? 'Network Stable' : 'Network Down'}</div>
                         <div className="status-tag"><Database size={10} /> {isConnected ? 'Data Pipeline Active' : 'Pipeline Inactive'}</div>
@@ -115,8 +95,8 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 <div className="status-summary flex-col" style={{ gap: '0.1rem' }}>
-                    <div className="status-summ-title">{warningCount + criticalCount === 0 ? 'No active alerts' : 'Active alerts detected'}</div>
-                    <div className="status-summ-val"><span className="text-primary font-bold">{warningCount}</span> warnings · <span className="text-primary font-bold">{criticalCount}</span> critical</div>
+                    <div className="status-summ-title">{isTolerance ? 'No active alerts' : 'Active alerts detected'}</div>
+                    <div className="status-summ-val">Status: <span className="text-primary font-bold">{towerStatus}</span></div>
                 </div>
             </div>
 
@@ -137,15 +117,15 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                     <div className="flex-col flex-1" style={{ marginTop: '2.5rem', justifyContent: 'center' }}>
                         <div className="sensor-label">CURRENT READING</div>
                         <div className="sensor-value-main">
-                            {windSpeed.toFixed(2)} <span className="sensor-unit">knot</span>
+                            {windSpeed.toFixed(2)} <span className="sensor-unit">km/h</span>
                         </div>
-                        <div className="sensor-range">Max range: {maxWind} knot</div>
+                        <div className="sensor-range">Max range: {maxWind} km/h</div>
                     </div>
 
                     <div style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
                         <div className="progress-labels">
-                            <span>0 knot</span>
-                            <span>{maxWind} knot</span>
+                            <span>0 km/h</span>
+                            <span>{maxWind} km/h</span>
                         </div>
                         <div className="progress-bar-container">
                             <div className="progress-bar-fill" style={{ width: `${windPercent}%` }}></div>
@@ -203,7 +183,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '4', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
                     <div className="sensor-header" style={{ marginBottom: '0.5rem', zIndex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div className="sensor-icon" style={{ color: statusColor, background: statusBg, borderColor: statusBorder, borderWidth: '1px', borderStyle: 'solid' }}>
-                            {towerStatus === 'CRITICAL' ? <AlertTriangle size={20} className="pulsing-icon" /> : towerStatus === 'WARNING' ? <AlertTriangle size={20} /> : <ShieldCheck size={20} />}
+                            {isTolerance ? <ShieldCheck size={20} /> : <AlertTriangle size={20} className="pulsing-icon" />}
                         </div>
                         <div className="sensor-label" style={{ color: 'var(--text-secondary)', marginBottom: 0, fontWeight: 700 }}>Alert & Notifications</div>
                     </div>
@@ -230,23 +210,23 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
 
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Wind Speed</span>
-                                <div className={`status-dot ${windWarning ? 'yellow' : 'green'}`}></div>
+                                <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Pitch</span>
-                                <div className={`status-dot ${pitchWarning ? 'yellow' : 'green'}`}></div>
+                                <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Roll</span>
-                                <div className={`status-dot ${rollWarning ? 'yellow' : 'green'}`}></div>
+                                <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Sway</span>
-                                <div className={`status-dot ${swayCritical ? 'red' : swayWarning ? 'yellow' : 'green'}`}></div>
+                                <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Total Tilt</span>
-                                <div className={`status-dot ${tiltWarning ? 'yellow' : 'green'}`}></div>
+                                <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                         </div>
                     </div>
@@ -265,7 +245,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 {/* Sway */}
-                <div className="sensor-card" style={{ borderColor: swayCritical ? 'rgba(244, 63, 94, 0.6)' : 'rgba(14, 165, 233, 0.4)', gridColumn: '3', gridRow: '1' }}>
+                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(14, 165, 233, 0.4)', gridColumn: '3', gridRow: '1' }}>
                     <div className="flex justify-between items-start w-full h-full">
                         <div className="flex items-center gap-4">
                             <div className="sensor-icon" style={{ color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)' }}>
@@ -287,7 +267,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 {/* Total Tilt */}
-                <div className="sensor-card" style={{ borderColor: tiltWarning ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)', gridColumn: '3', gridRow: '2' }}>
+                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)', gridColumn: '3', gridRow: '2' }}>
                     <div className="flex justify-between items-start w-full h-full">
                         <div className="flex items-center gap-4">
                             <div className="sensor-icon" style={{ color: 'var(--accent-red)', background: 'rgba(244, 63, 94, 0.15)' }}>

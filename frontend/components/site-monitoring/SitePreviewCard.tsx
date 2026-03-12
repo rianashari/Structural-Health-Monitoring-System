@@ -33,35 +33,17 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
     const sway = latest?.sway ?? 0;
     const totalTilt = latest?.total_tilt ?? 0;
 
-    const swayWarning = sway > 30;
-    const swayCritical = sway > 50;
-    const tiltWarning = totalTilt > 0.05;
-    const windWarning = windSpeed > 10;
-    const pitchWarning = Math.abs(pitch) > 2;
-    const rollWarning = Math.abs(roll) > 2;
+    // Status berdasarkan indikator dari MQTT
+    const indikator = latest?.indikator ?? 'tolerance';
+    const isTolerance = indikator === 'tolerance';
 
-    const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0) + (windWarning ? 1 : 0) + (pitchWarning ? 1 : 0) + (rollWarning ? 1 : 0);
-    const criticalCount = swayCritical ? 1 : 0;
-
-    let towerStatus = 'TOLERANCE';
-    let alertColor = 'var(--accent-green)';
-    let alertBg = 'rgba(8, 184, 124, 0.1)';
-    let alertBorder = 'rgba(8, 184, 124, 0.4)';
-    let recommendation = 'System structural integrity is optimal.';
-
-    if (criticalCount > 0) {
-        towerStatus = 'CRITICAL';
-        alertColor = 'var(--accent-red)';
-        alertBg = 'rgba(244, 63, 94, 0.15)';
-        alertBorder = 'rgba(244, 63, 94, 0.6)';
-        recommendation = 'Critical threshold exceeded.';
-    } else if (warningCount > 0) {
-        towerStatus = 'WARNING';
-        alertColor = 'var(--accent-yellow)';
-        alertBg = 'rgba(234, 179, 8, 0.15)';
-        alertBorder = 'rgba(234, 179, 8, 0.6)';
-        recommendation = 'Sub-optimal readings detected.';
-    }
+    const towerStatus = isTolerance ? 'TOLERANCE' : 'INTOLERANCE';
+    const alertColor = isTolerance ? 'var(--accent-green)' : 'var(--accent-red)';
+    const alertBg = isTolerance ? 'rgba(8, 184, 124, 0.1)' : 'rgba(244, 63, 94, 0.15)';
+    const alertBorder = isTolerance ? 'rgba(8, 184, 124, 0.4)' : 'rgba(244, 63, 94, 0.6)';
+    const recommendation = isTolerance
+        ? 'System structural integrity is optimal.'
+        : 'Intolerance detected. Immediate inspection advised.';
 
     const handleOpenDashboard = () => {
         router.push(`/dashboard/${site.code}`);
@@ -127,7 +109,7 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
 
                     <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
                         <span className="site-preview-label"><Wind size={10} style={{ marginRight: '4px' }} /> Wind Speed</span>
-                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.wind_speed.toFixed(2) : '--'} knot</span>
+                        <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.wind_speed.toFixed(2) : '--'} km/h</span>
                     </div>
                     <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
                         <span className="site-preview-label"><Compass size={10} style={{ marginRight: '4px' }} /> Pitch</span>
@@ -170,7 +152,7 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                                 background: 'rgba(0,0,0,0.2)',
                                 border: `1px solid ${alertBorder}`
                             }}>
-                                {towerStatus === 'CRITICAL' ? <AlertTriangle size={16} className="pulsing-icon" /> : towerStatus === 'WARNING' ? <AlertTriangle size={16} /> : <ShieldCheck size={16} />}
+                                {isTolerance ? <ShieldCheck size={16} /> : <AlertTriangle size={16} className="pulsing-icon" />}
                             </div>
                             <div className="flex-col" style={{ gap: '0.1rem', flex: 1 }}>
                                 <div style={{ fontSize: '0.7rem', fontWeight: 700, color: alertColor, letterSpacing: '0.05em' }}>

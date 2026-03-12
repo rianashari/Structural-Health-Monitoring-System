@@ -32,12 +32,13 @@ def generate_dummy_data():
     Range nilai disesuaikan dengan yang ditampilkan di frontend dashboard.
     """
     return {
-        'wind_speed': round(random.uniform(0.0, 5.0), 2),       # 0 - 5 knot (normal range)
+        'wind_speed': round(random.uniform(0.0, 5.0), 2),       # 0 - 5 km/h (normal range)
         'pitch': round(random.uniform(-0.5, 0.5), 3),           # -0.5° to 0.5°
         'roll': round(random.uniform(-0.5, 0.5), 3),            # -0.5° to 0.5°
         'tilt_rate': round(random.uniform(0.0, 0.1), 4),        # 0 - 0.1°
         'sway': round(random.uniform(10.0, 70.0), 1),           # 10 - 70 mm
         'total_tilt': round(random.uniform(0.01, 0.1), 4),      # 0.01° - 0.1°
+        'indikator': random.choice(['tolerance', 'intolerance']),
     }
 
 
@@ -93,12 +94,13 @@ def main():
 
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
                 print(f"[{now:%H:%M:%S}] 📤 Message #{message_count} published")
-                print(f"         Wind Speed  : {data['wind_speed']:.2f} knot")
+                print(f"         Wind Speed  : {data['wind_speed']:.2f} km/h")
                 print(f"         Pitch       : {data['pitch']:.3f}°")
                 print(f"         Roll        : {data['roll']:.3f}°")
                 print(f"         Tilt Rate   : {data['tilt_rate']:.4f}°")
                 print(f"         Sway        : {data['sway']:.1f} mm")
                 print(f"         Total Tilt  : {data['total_tilt']:.4f}°")
+                print(f"         Indikator   : {data['indikator']}")
                 print()
             else:
                 print(f"[{now:%H:%M:%S}] ✗ Gagal publish message #{message_count}")

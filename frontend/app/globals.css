@@ -831,6 +831,8 @@ button {
   border: 1px solid var(--border-color);
   font-size: 0.7rem;
   color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .sitemap-stat.online {
@@ -843,6 +845,35 @@ button {
 
 .sitemap-stat.offline {
   border-color: rgba(244, 63, 94, 0.2);
+}
+
+.sitemap-stat:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.sitemap-stat.active {
+  background: rgba(14, 189, 181, 0.1);
+  border-color: rgba(14, 189, 181, 0.35);
+  box-shadow: 0 0 8px rgba(14, 189, 181, 0.15);
+}
+
+.sitemap-stat.online.active {
+  background: rgba(8, 184, 124, 0.12);
+  border-color: rgba(8, 184, 124, 0.4);
+  box-shadow: 0 0 8px rgba(8, 184, 124, 0.15);
+}
+
+.sitemap-stat.warning.active {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.4);
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.15);
+}
+
+.sitemap-stat.offline.active {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.4);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.15);
 }
 
 .sitemap-stat-value {

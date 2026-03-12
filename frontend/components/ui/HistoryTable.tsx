@@ -99,7 +99,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
             total_tilt: 'Total Tilt',
         };
         const paramUnits: Record<string, string> = {
-            wind_speed: 'knot',
+            wind_speed: 'km/h',
             pitch: '°',
             roll: '°',
             sway: 'mm',

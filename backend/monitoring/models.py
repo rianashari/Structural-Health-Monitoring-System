@@ -20,7 +20,7 @@ class SensorData(models.Model):
     )
     wind_speed = models.FloatField(
         default=0.0,
-        help_text='Kecepatan angin dalam knot'
+        help_text='Kecepatan angin dalam km/h'
     )
     pitch = models.FloatField(
         default=0.0,
@@ -41,6 +41,12 @@ class SensorData(models.Model):
     total_tilt = models.FloatField(
         default=0.0,
         help_text='Total kemiringan dalam derajat'
+    )
+    indikator = models.CharField(
+        max_length=20,
+        default='tolerance',
+        choices=[('tolerance', 'Tolerance'), ('intolerance', 'Intolerance')],
+        help_text='Indikator status: tolerance atau intolerance'
     )
 
     class Meta:

@@ -74,6 +74,7 @@ def parse_payload(payload):
             'tilt_rate': axes.get('tilt_rate', 0),
             'total_tilt': axes.get('total_tilt', 0),
             'sway': sensors.get('sway', 0),
+            'indikator': payload.get('indikator', 'tolerance'),
         }
     else:
         # Format lama — flat (backward compatibility)
@@ -85,6 +86,7 @@ def parse_payload(payload):
             'tilt_rate': payload.get('tilt_rate', 0),
             'total_tilt': payload.get('total_tilt', 0),
             'sway': payload.get('sway', 0),
+            'indikator': payload.get('indikator', 'tolerance'),
         }
 
 
@@ -104,6 +106,7 @@ def on_message(client, userdata, msg):
         print(f"         Tilt Rate   : {data['tilt_rate']:.3f}°")
         print(f"         Sway        : {data['sway']:.1f} mm")
         print(f"         Total Tilt  : {data['total_tilt']:.4f}°")
+        print(f"         Indikator   : {data['indikator']}")
 
         # Simpan ke database
         sensor_data = SensorData.objects.create(
@@ -114,6 +117,7 @@ def on_message(client, userdata, msg):
             tilt_rate=data['tilt_rate'],
             sway=data['sway'],
             total_tilt=data['total_tilt'],
+            indikator=data['indikator'],
         )
 
         print(f"         ✓ Tersimpan di database (ID: {sensor_data.id})")

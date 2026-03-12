@@ -8,9 +8,10 @@ interface SiteMapProps {
     selectedSite: Site | null;
     onSelectSite: (site: Site) => void;
     sidebarOpen?: boolean;
+    filteredSiteIds?: Set<string>;
 }
 
-export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen }: SiteMapProps) {
+export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen, filteredSiteIds }: SiteMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<Map<string, L.Marker>>(new Map());
@@ -24,7 +25,7 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
 
     const createIcon = useCallback((L: typeof import('leaflet'), status: string) => {
         const color = status === 'online' ? '#08b87c' : status === 'warning' ? '#eab308' : '#f43f5e';
-        const glowColor = status === 'online' ? 'rgba(8,184,124,0.4)' : status === 'warning' ? 'rgba(234,179,8,0.4)' : 'rgba(244,63,94,0.4)';
+        const glowColor = status === 'offline' ? 'rgba(244,63,94,0.4)' : "";
 
         return L.divIcon({
             className: 'custom-site-marker',
@@ -127,6 +128,35 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
             }
         });
     }, [sites, createIcon]);
+
+    // Show/hide markers based on filtered site IDs
+    useEffect(() => {
+        const map = mapInstanceRef.current;
+        const L = leafletRef.current;
+        if (!map || !L) return;
+
+        // If no filter set is provided, show all markers
+        const showAll = !filteredSiteIds;
+
+        markersRef.current.forEach((marker, siteId) => {
+            const shouldShow = showAll || filteredSiteIds!.has(siteId);
+            if (shouldShow && !map.hasLayer(marker)) {
+                marker.addTo(map);
+            } else if (!shouldShow && map.hasLayer(marker)) {
+                map.removeLayer(marker);
+            }
+        });
+
+        // Fit bounds to visible markers
+        const visibleMarkers = Array.from(markersRef.current.entries())
+            .filter(([id]) => showAll || filteredSiteIds!.has(id))
+            .map(([, marker]) => marker);
+
+        if (visibleMarkers.length > 0) {
+            const group = L.featureGroup(visibleMarkers);
+            map.fitBounds(group.getBounds().pad(0.15), { maxZoom: 12 });
+        }
+    }, [filteredSiteIds]);
 
     // Fly to selected site
     useEffect(() => {

@@ -6,9 +6,11 @@ import { Site } from '@/data/sites';
 interface SiteMapHeaderProps {
     onLogout?: () => void;
     sites?: Site[];
+    statusFilter: string | null;
+    onStatusFilterChange: (status: string | null) => void;
 }
 
-export default function SiteMapHeader({ onLogout, sites = [] }: SiteMapHeaderProps) {
+export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onStatusFilterChange }: SiteMapHeaderProps) {
     const onlineCount = sites.filter(s => s.status === 'online').length;
     const warningCount = sites.filter(s => s.status === 'warning').length;
     const offlineCount = sites.filter(s => s.status === 'offline').length;
@@ -26,29 +28,45 @@ export default function SiteMapHeader({ onLogout, sites = [] }: SiteMapHeaderPro
             </div>
 
             <div className="sitemap-header-stats">
-                <div className="sitemap-stat">
+                <button
+                    className={`sitemap-stat ${statusFilter === null ? 'active' : ''}`}
+                    onClick={() => onStatusFilterChange(null)}
+                    style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
+                >
                     <MapPin size={14} />
                     <span className="sitemap-stat-value">{sites.length}</span>
                     <span className="sitemap-stat-label">Total Sites</span>
-                </div>
-                <div className="sitemap-stat online">
+                </button>
+                <button
+                    className={`sitemap-stat online ${statusFilter === 'online' ? 'active' : ''}`}
+                    onClick={() => onStatusFilterChange(statusFilter === 'online' ? null : 'online')}
+                    style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
+                >
                     <span className="status-dot green" />
                     <span className="sitemap-stat-value">{onlineCount}</span>
                     <span className="sitemap-stat-label">Online</span>
-                </div>
+                </button>
                 {warningCount > 0 && (
-                    <div className="sitemap-stat warning">
+                    <button
+                        className={`sitemap-stat warning ${statusFilter === 'warning' ? 'active' : ''}`}
+                        onClick={() => onStatusFilterChange(statusFilter === 'warning' ? null : 'warning')}
+                        style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
+                    >
                         <span className="status-dot yellow" />
                         <span className="sitemap-stat-value">{warningCount}</span>
                         <span className="sitemap-stat-label">Warning</span>
-                    </div>
+                    </button>
                 )}
                 {offlineCount > 0 && (
-                    <div className="sitemap-stat offline">
+                    <button
+                        className={`sitemap-stat offline ${statusFilter === 'offline' ? 'active' : ''}`}
+                        onClick={() => onStatusFilterChange(statusFilter === 'offline' ? null : 'offline')}
+                        style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'inherit' }}
+                    >
                         <span className="status-dot red" />
                         <span className="sitemap-stat-value">{offlineCount}</span>
                         <span className="sitemap-stat-label">Offline</span>
-                    </div>
+                    </button>
                 )}
             </div>
 

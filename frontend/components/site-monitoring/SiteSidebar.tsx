@@ -8,11 +8,12 @@ interface SiteSidebarProps {
     sites: Site[];
     selectedSiteId: string | null;
     onSelectSite: (site: Site) => void;
+    areaFilter: string;
+    onAreaFilterChange: (area: string) => void;
 }
 
-export default function SiteSidebar({ sites, selectedSiteId, onSelectSite }: SiteSidebarProps) {
+export default function SiteSidebar({ sites, selectedSiteId, onSelectSite, areaFilter, onAreaFilterChange }: SiteSidebarProps) {
     const [search, setSearch] = useState('');
-    const [areaFilter, setAreaFilter] = useState<string>('all');
 
     const areas = Array.from(new Set(sites.map(s => s.area))).sort();
 
@@ -54,7 +55,7 @@ export default function SiteSidebar({ sites, selectedSiteId, onSelectSite }: Sit
 
             <div className="site-sidebar-filters">
                 <button
-                    onClick={() => setAreaFilter('all')}
+                    onClick={() => onAreaFilterChange('all')}
                     className={`site-filter-btn ${areaFilter === 'all' ? 'active' : ''}`}
                 >
                     All
@@ -62,7 +63,7 @@ export default function SiteSidebar({ sites, selectedSiteId, onSelectSite }: Sit
                 {areas.map(area => (
                     <button
                         key={area}
-                        onClick={() => setAreaFilter(area)}
+                        onClick={() => onAreaFilterChange(area)}
                         className={`site-filter-btn ${areaFilter === area ? 'active' : ''}`}
                     >
                         {area}

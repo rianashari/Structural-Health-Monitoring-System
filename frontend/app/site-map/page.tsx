@@ -13,6 +13,8 @@ export default function RectifierSiteMapPage() {
     const { isAuthenticated, logout } = useAuth();
     const [selectedSite, setSelectedSite] = useState<Site | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [areaFilter, setAreaFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<string | null>(null);
     const liveStatuses = useSitesStatus(15000);
 
     // Merge live status into site data
@@ -26,6 +28,23 @@ export default function RectifierSiteMapPage() {
             return site;
         });
     }, [liveStatuses]);
+
+    // Compute filtered site IDs for the map (combines area + status filters)
+    const filteredSiteIds = useMemo(() => {
+        const hasAreaFilter = areaFilter !== 'all';
+        const hasStatusFilter = statusFilter !== null;
+
+        // If no filters active, return undefined (show all)
+        if (!hasAreaFilter && !hasStatusFilter) return undefined;
+
+        const filtered = liveSites.filter(site => {
+            const matchesArea = !hasAreaFilter || site.area === areaFilter;
+            const matchesStatus = !hasStatusFilter || site.status === statusFilter;
+            return matchesArea && matchesStatus;
+        });
+
+        return new Set(filtered.map(s => s.id));
+    }, [liveSites, areaFilter, statusFilter]);
 
     if (isAuthenticated === null) {
         return (
@@ -57,13 +76,20 @@ export default function RectifierSiteMapPage() {
 
     return (
         <div className="sitemap-page">
-            <SiteMapHeader onLogout={logout} sites={liveSites} />
+            <SiteMapHeader
+                onLogout={logout}
+                sites={liveSites}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+            />
             <div className="sitemap-content">
                 {sidebarOpen && (
                     <SiteSidebar
                         sites={liveSites}
                         selectedSiteId={selectedSite?.id ?? null}
                         onSelectSite={(site) => setSelectedSite(site)}
+                        areaFilter={areaFilter}
+                        onAreaFilterChange={setAreaFilter}
                     />
                 )}
                 <div className="sitemap-map-wrapper">
@@ -93,6 +119,7 @@ export default function RectifierSiteMapPage() {
                         selectedSite={selectedSite}
                         onSelectSite={(site) => setSelectedSite(site)}
                         sidebarOpen={sidebarOpen}
+                        filteredSiteIds={filteredSiteIds}
                     />
                     {selectedSite && (
                         <div className="sitemap-preview-overlay">

@@ -17,5 +17,6 @@ class SensorDataSerializer(serializers.ModelSerializer):
             'tilt_rate',
             'sway',
             'total_tilt',
+            'indikator',
         ]
         read_only_fields = ['id', 'timestamp']

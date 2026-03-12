@@ -13,6 +13,7 @@ export interface SensorData {
     tilt_rate: number;
     sway: number;
     total_tilt: number;
+    indikator?: string;
 }
 
 export function useSensorData(refreshInterval = 5000, deviceId?: string) {

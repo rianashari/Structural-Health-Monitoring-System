@@ -201,7 +201,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     }
 
     const sensorRows = latest ? [
-        ['Wind Speed', `${latest.wind_speed.toFixed(2)} knot`, '0 - 19.44 knot', getStatus('Wind Speed', latest.wind_speed)],
+        ['Wind Speed', `${latest.wind_speed.toFixed(2)} km/h`, '0 - 35 km/h', getStatus('Wind Speed', latest.wind_speed)],
         ['Pitch', `${latest.pitch.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Roll', `${latest.roll.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Tilt Rate', `${latest.tilt_rate.toFixed(4)}°`, '0° - 1°', 'NORMAL'],
@@ -282,7 +282,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     autoTable(doc, {
         startY: y + 2,
-        head: [['Date', 'Time', 'Wind (knot)', 'Pitch (°)', 'Roll (°)', 'Tilt Rate (°)', 'Sway (mm)', 'Total Tilt (°)']],
+        head: [['Date', 'Time', 'Wind (km/h)', 'Pitch (°)', 'Roll (°)', 'Tilt Rate (°)', 'Sway (mm)', 'Total Tilt (°)']],
         body: trendRows,
         margin: { left: margin, right: margin },
         styles: {
@@ -336,7 +336,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         wind_speed: 'Wind Speed', pitch: 'Pitch', roll: 'Roll', sway: 'Sway', total_tilt: 'Total Tilt'
     };
     const paramUnits: Record<string, string> = {
-        wind_speed: 'knot', pitch: '°', roll: '°', sway: 'mm', total_tilt: '°'
+        wind_speed: 'km/h', pitch: '°', roll: '°', sway: 'mm', total_tilt: '°'
     };
 
     const changeRows: string[][] = [];

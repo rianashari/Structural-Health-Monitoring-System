@@ -131,8 +131,8 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                             <div className="progress-bar-fill" style={{ width: `${windPercent}%` }}></div>
                         </div>
                         <div className="flex items-center gap-2 font-bold" style={{ fontSize: '0.65rem', marginTop: '0.75rem', color: windSpeed > 10 ? 'var(--accent-red)' : 'var(--accent-teal)' }}>
-                            <div className={`status-dot ${windSpeed > 10 ? 'red' : 'teal'}`}></div>
-                            {windSpeed > 10 ? 'Above safe threshold' : 'Within safe threshold'}
+                            <div className={`status-dot ${windSpeed > 22 ? 'red' : 'teal'}`}></div>
+                            {windSpeed > 22 ? 'Above safe threshold' : 'Within safe threshold'}
                         </div>
                     </div>
                 </div>

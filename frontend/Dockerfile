@@ -11,7 +11,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # NEXT_PUBLIC_* vars must be available at build time
-ARG NEXT_PUBLIC_API_URL=https://110.232.92.134:3001/api
+ARG NEXT_PUBLIC_API_URL=http://110.232.92.134:3001/api
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build

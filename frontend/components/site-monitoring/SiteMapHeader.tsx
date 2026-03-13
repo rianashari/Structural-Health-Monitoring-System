@@ -71,9 +71,9 @@ export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onSt
             </div>
 
             {onLogout && (
-                <button onClick={onLogout} className="sitemap-logout-btn">
+                <button onClick={onLogout} className="sitemap-logout-btn logout-mobile-btn">
                     <LogOut size={14} />
-                    Logout
+                    <span className="hide-mobile">Logout</span>
                 </button>
             )}
         </header>

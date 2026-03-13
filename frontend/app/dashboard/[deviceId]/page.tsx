@@ -16,17 +16,13 @@ export default function DashboardPage() {
     const params = useParams();
     const deviceId = params.deviceId as string;
 
-    // Find site info from sites data by matching code (device_id)
     const site = sites.find(s => s.code === deviceId);
 
     const { latest, history } = useSensorData(5000, deviceId);
 
-    // Use same status logic as the map (timestamp-based: <5min=online, <30min=warning, >30min=offline)
     const liveStatuses = useSitesStatus(15000);
     const deviceStatus = liveStatuses.find(s => s.device_id === deviceId);
     const isConnected = deviceStatus ? deviceStatus.live_status === 'online' : false;
-
-    // Show nothing while checking auth
     if (isAuthenticated === null) {
         return (
             <div style={{

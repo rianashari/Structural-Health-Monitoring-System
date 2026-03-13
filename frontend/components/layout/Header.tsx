@@ -30,11 +30,9 @@ export default function Header({ latest = null, history = [], onLogout, siteName
         setIsExporting(true);
 
         try {
-            // Build query params for date-filtered data from backend
             const params = new URLSearchParams();
             params.set('limit', '5000');
 
-            // Include device_id if available (for per-site reports)
             if (latest?.device_id) {
                 params.set('device_id', latest.device_id);
             }
@@ -55,15 +53,12 @@ export default function Header({ latest = null, history = [], onLogout, siteName
             const res = await fetch(`${API_BASE}/sensor-data/history/?${params.toString()}`);
             if (res.ok) {
                 const filteredData: SensorData[] = await res.json();
-                // Use the latest from filtered data if available, otherwise use current latest
                 const reportLatest = filteredData.length > 0 ? filteredData[0] : latest;
                 generateReport(reportLatest, filteredData, startDate, endDate, { name: siteName, deviceId });
             } else {
-                // Fallback to existing history if API fails
                 generateReport(latest, history, startDate, endDate, { name: siteName, deviceId });
             }
         } catch {
-            // Fallback to existing history on error
             generateReport(latest, history, startDate, endDate, { name: siteName, deviceId });
         } finally {
             setIsExporting(false);
@@ -165,7 +160,7 @@ export default function Header({ latest = null, history = [], onLogout, siteName
                 {onLogout && (
                     <button
                         onClick={onLogout}
-                        className="report-btn"
+                        className="report-btn logout-mobile-btn"
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -191,7 +186,7 @@ export default function Header({ latest = null, history = [], onLogout, siteName
                         }}
                     >
                         <LogOut size={14} />
-                        Logout
+                        <span className="hide-mobile">Logout</span>
                     </button>
                 )}
             </div>

@@ -74,11 +74,10 @@ export default function HistoryTable({ history }: HistoryTableProps) {
     useEffect(() => {
         if (history.length < 2) return;
 
-        // Only regenerate events when history changes
         const currentIds = history.map(h => h.id);
         const prevIds = prevHistoryRef.current.map(h => h.id);
         if (JSON.stringify(currentIds) === JSON.stringify(prevIds)) return;
-        
+
         const addedIds = currentIds.filter(id => !prevIds.includes(id) && prevIds.length > 0);
         if (addedIds.length > 0) {
             setNewRowIds(prev => [...prev, ...addedIds]);
@@ -110,7 +109,6 @@ export default function HistoryTable({ history }: HistoryTableProps) {
             const curr = history[i];
             const prev = history[i + 1];
 
-            // Find the parameter with the biggest relative change
             let biggestParam: typeof params[number] = params[0];
             let biggestDiff = 0;
 
@@ -155,7 +153,6 @@ export default function HistoryTable({ history }: HistoryTableProps) {
         setEvents(newEvents);
     }, [history]);
 
-    // Update "ago" text periodically
     useEffect(() => {
         const timer = setInterval(() => {
             if (history.length === 0) return;
@@ -179,13 +176,11 @@ export default function HistoryTable({ history }: HistoryTableProps) {
 
     const exportToExcelConfirm = (startDate: Date | null, endDate: Date | null) => {
         setIsExportOpen(false);
-        // Optionally pass startDate and endDate if filtering is desired
         let exportData = events;
 
         if (startDate && endDate) {
             exportData = events.filter(e => {
                 const eventDate = new Date(e.date + ' ' + e.time);
-                // Set start date to start of day, end date to end of day
                 const start = new Date(startDate);
                 start.setHours(0, 0, 0, 0);
                 const end = new Date(endDate);
@@ -324,7 +319,6 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                 <div className="text-tertiary" style={{ fontSize: '0.65rem' }}>Showing {events.length} events</div>
             </div>
 
-            {/* Scrollable Table Container */}
             <div className="table-scroll-container" style={{
                 maxHeight: '350px',
                 overflowY: 'auto',
@@ -336,10 +330,10 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                         <tr>
                             <th>DATE & TIME</th>
                             <th>PARAMETER</th>
-                            <th>PREVIOUS</th>
+                            <th className="hide-mobile">PREVIOUS</th>
                             <th>CURRENT</th>
-                            <th>CHANGE</th>
-                            <th>STATUS</th>
+                            <th className="hide-mobile">CHANGE</th>
+                            <th className="status-col-mobile">STATUS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -352,31 +346,45 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                         ) : events.map((row) => (
                             <tr key={row.id} className={newRowIds.includes(row.id) ? "new-row" : ""}>
                                 <td>
-                                    <div className="time-col gap-0.5">
+                                    <div className="time-col" style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                                         <span className="text-tertiary" style={{ fontSize: '0.6rem', fontWeight: 500 }}>{row.date}</span>
-                                        <div className="flex items-baseline gap-3">
+                                        <div className="history-time-wrap">
                                             <span className="font-mono text-primary" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{row.time}</span>
-                                            <span className="text-tertiary" style={{ fontSize: '0.6rem' }}>{row.ago}</span>
+                                            <span className="text-tertiary history-ago-text" style={{ fontSize: '0.6rem' }}>{row.ago}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <div className="param-name text-secondary">
                                         <div className="param-icon-wrap">{row.icon}</div>
-                                        {row.param}
+                                        {row.param === 'Wind Speed' ? (
+                                            <>
+                                                <span className="hide-mobile">Wind Speed</span>
+                                                <span className="show-mobile">Wind<br />Speed</span>
+                                            </>
+                                        ) : (
+                                            row.param
+                                        )}
                                         {newRowIds.includes(row.id) && (
-                                            <span className="new-badge">NEW</span>
+                                            <span className="new-badge hide-mobile">NEW</span>
                                         )}
                                     </div>
                                 </td>
-                                <td className="text-tertiary font-mono" style={{ fontSize: '0.75rem' }}>{row.prev}</td>
-                                <td className="font-mono text-primary" style={{ fontWeight: 700, fontSize: '0.75rem' }}>{row.curr}</td>
-                                <td>
+                                <td className="text-tertiary font-mono hide-mobile" style={{ fontSize: '0.75rem' }}>{row.prev}</td>
+                                <td className="font-mono text-primary" style={{ fontWeight: 700, fontSize: '0.75rem' }}>
+                                    <div className="history-val-wrap">
+                                        <span>{row.curr.split(' ')[0]}</span>
+                                        <span className="history-unit text-tertiary" style={{ fontSize: '0.65rem' }}>
+                                            {row.curr.split(' ').slice(1).join(' ')}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="hide-mobile">
                                     <div className={`change-val ${row.changeType === 'down' ? 'text-green' : 'text-red'}`}>
                                         {row.changeType === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />} {row.change}
                                     </div>
                                 </td>
-                                <td>
+                                <td className="status-col-mobile">
                                     <span className={`status-badge ${row.color}`}>
                                         <div className={`status-dot ${row.color}`}></div> {row.status}
                                     </span>
@@ -387,7 +395,7 @@ export default function HistoryTable({ history }: HistoryTableProps) {
                 </table>
             </div>
 
-            <div className="flex justify-between items-center" style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.03)', fontSize: '0.75rem' }}>
+            <div className="flex justify-between items-center" style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.03)', fontSize: '0.75rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div className="flex gap-6">
                     <span className="flex items-center" style={{ gap: '0.375rem' }}><div className="status-dot green"></div> <span className="text-secondary">{normalCount} normal</span></span>
                     <span className="flex items-center" style={{ gap: '0.375rem' }}><div className="status-dot yellow"></div> <span className="text-secondary">{warningCount} warning</span></span>

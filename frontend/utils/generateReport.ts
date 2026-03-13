@@ -2,7 +2,6 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SensorData } from '@/hooks/useSensorData';
 
-// Extend jsPDF type for autotable
 interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable: { finalY: number };
 }
@@ -10,7 +9,7 @@ interface jsPDFWithAutoTable extends jsPDF {
 function getStatus(param: string, value: number, swayTolerance: number = 30): string {
     if (param === 'Sway') {
         const warningThreshold = swayTolerance;
-        const criticalThreshold = swayTolerance * (50/30); // scale proportionally, or just swayTolerance + 20? The user said tolerance is height/200. Usually tolerance means warning threshold. Let's use swayTolerance for WARNING and swayTolerance * 1.5 for CRITICAL or just some arbitrary. Let's make critical = tolerance + 20 for now. Actually, let's keep it simple: tolerance is the max allowed (WARNING).
+        const criticalThreshold = swayTolerance * (50 / 30);
         if (value > swayTolerance + 20) return 'CRITICAL';
         if (value > swayTolerance) return 'WARNING';
         return 'NORMAL';
@@ -47,39 +46,24 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     const margin = 15;
     const contentWidth = pageWidth - margin * 2;
     const now = new Date();
-
-    // ============================================================
-    // COLOR PALETTE
-    // ============================================================
     const primary: [number, number, number] = [15, 23, 42];
     const accent: [number, number, number] = [14, 165, 233];
     const headerBg: [number, number, number] = [30, 41, 59];
     const lightGray: [number, number, number] = [241, 245, 249];
     const textDark: [number, number, number] = [30, 41, 59];
     const textMuted: [number, number, number] = [100, 116, 139];
-
-    // ============================================================
-    // HEADER SECTION
-    // ============================================================
     doc.setFillColor(...primary);
     doc.rect(0, 0, pageWidth, 45, 'F');
-
-    // Accent bar
     doc.setFillColor(...accent);
     doc.rect(0, 45, pageWidth, 2, 'F');
-
-    // Title
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.text('Structural Health Monitoring', margin, 18);
-
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(148, 163, 184);
     doc.text('System Report', margin, 26);
-
-    // Report metadata (right side)
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
     doc.text('Report Generated:', pageWidth - margin, 14, { align: 'right' });
@@ -87,8 +71,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     doc.setFont('helvetica', 'bold');
     doc.text(now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), pageWidth - margin, 20, { align: 'right' });
     doc.text(now.toLocaleTimeString('id-ID'), pageWidth - margin, 26, { align: 'right' });
-
-    // Date range info
     if (startDate || endDate) {
         doc.setFontSize(7);
         doc.setTextColor(148, 163, 184);
@@ -96,8 +78,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         const rangeEnd = endDate ? endDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Now';
         doc.text(`Period: ${rangeStart} — ${rangeEnd}`, pageWidth - margin, 32, { align: 'right' });
     }
-
-    // Site info badges
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     const siteName = siteInfo?.name ?? 'SHM Site';
@@ -116,25 +96,19 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     let y = 55;
 
-    // ============================================================
-    // EXECUTIVE SUMMARY
-    // ============================================================
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textDark);
     doc.text('Executive Summary', margin, y);
-
-    // Decorative line
     doc.setFillColor(...accent);
     doc.rect(margin, y + 2, 25, 0.8, 'F');
     y += 10;
 
-    // Status calculations
     const swayVal = latest?.sway ?? 0;
     const tiltVal = latest?.total_tilt ?? 0;
     const windVal = latest?.wind_speed ?? 0;
 
-    const swayTolerance = (siteInfo?.towerHeight || 6) * 5; // default fallback if no height
+    const swayTolerance = (siteInfo?.towerHeight || 6) * 5;
 
     const swayWarning = swayVal > swayTolerance;
     const swayCritical = swayVal > (swayTolerance + 20);
@@ -143,7 +117,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     const criticalCount = swayCritical ? 1 : 0;
     const systemStatus = criticalCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'ALL CLEAR';
 
-    // Summary cards
     const cardWidth = (contentWidth - 6) / 3;
     const cards = [
         { label: 'System Status', value: systemStatus, color: getStatusColor(systemStatus) },
@@ -156,7 +129,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         doc.setFillColor(...lightGray);
         doc.roundedRect(cx, y, cardWidth, 18, 2, 2, 'F');
 
-        // Left accent bar
         doc.setFillColor(...card.color);
         doc.rect(cx, y + 3, 1.2, 12, 'F');
 
@@ -173,7 +145,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     y += 26;
 
-    // Data info
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...textMuted);
@@ -184,9 +155,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     doc.text(dataInfo, margin, y);
     y += 8;
 
-    // ============================================================
-    // CURRENT SENSOR READINGS
-    // ============================================================
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textDark);
@@ -249,9 +217,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     y = doc.lastAutoTable.finalY + 10;
 
-    // ============================================================
-    // TREND DATA TABLE
-    // ============================================================
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textDark);
@@ -310,11 +275,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     y = doc.lastAutoTable.finalY + 10;
 
-    // ============================================================
-    // PARAMETER CHANGE HISTORY
-    // ============================================================
-
-    // Check if we need a new page
     if (y > 250) {
         doc.addPage();
         y = 20;
@@ -334,7 +294,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     doc.text(`Significant parameter changes between consecutive readings (${trendData.length} records)`, margin, y + 3);
     y += 4;
 
-    // Generate change events from history
     const paramKeys = ['wind_speed', 'pitch', 'roll', 'sway', 'total_tilt'] as const;
     const paramNames: Record<string, string> = {
         wind_speed: 'Wind Speed', pitch: 'Pitch', roll: 'Roll', sway: 'Sway', total_tilt: 'Total Tilt'
@@ -401,7 +360,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
                 else if (val === 'WARNING') { data.cell.styles.textColor = [234, 179, 8]; data.cell.styles.fontStyle = 'bold'; }
                 else if (val === 'NORMAL') { data.cell.styles.textColor = [34, 197, 94]; data.cell.styles.fontStyle = 'bold'; }
             }
-            // Color the change column
             if (data.section === 'body' && data.column.index === 4) {
                 const val = data.cell.raw as string;
                 if (val.startsWith('+')) data.cell.styles.textColor = [220, 38, 38];
@@ -410,15 +368,10 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         },
     });
 
-    // ============================================================
-    // FOOTER ON EVERY PAGE
-    // ============================================================
     const totalPages = doc.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         const pageH = doc.internal.pageSize.getHeight();
-
-        // Footer line
         doc.setDrawColor(226, 232, 240);
         doc.setLineWidth(0.3);
         doc.line(margin, pageH - 12, pageWidth - margin, pageH - 12);
@@ -430,9 +383,6 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageH - 7, { align: 'right' });
     }
 
-    // ============================================================
-    // SAVE
-    // ============================================================
     const deviceTag = siteInfo?.deviceId ? `_${siteInfo.deviceId}` : '';
     const filename = `SHM_Report${deviceTag}_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.pdf`;
     doc.save(filename);

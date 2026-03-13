@@ -26,14 +26,11 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
         return 'rgba(244, 63, 94, 0.15)';
     };
 
-    // Derived tower health logic from telemetry parameters
     const windSpeed = latest?.wind_speed ?? 0;
-    // const pitch = latest?.pitch ?? 0;
     const roll = latest?.roll ?? 0;
     const sway = latest?.sway ?? 0;
     const totalTilt = latest?.total_tilt ?? 0;
 
-    // Status berdasarkan indikator dari MQTT
     const indikator = latest?.indikator ?? 'tolerance';
     const isTolerance = indikator === 'tolerance';
 
@@ -118,7 +115,6 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                         <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.total_tilt.toFixed(4) : '--'}°</span>
                     </div>
 
-                    {/* Alerts & Notifications Section directly synced with Tower Health Logic */}
                     <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ fontSize: '0.6rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Alerts & Notifications</div>
                         <div style={{

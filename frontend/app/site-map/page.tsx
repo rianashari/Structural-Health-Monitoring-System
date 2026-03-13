@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { sites, Site } from '@/data/sites';
 import { useSitesStatus } from '@/hooks/useSitesStatus';
@@ -17,7 +17,12 @@ export default function RectifierSiteMapPage() {
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
     const liveStatuses = useSitesStatus(15000);
 
-    // Merge live status into site data
+    useEffect(() => {
+        if (window.innerWidth <= 768) {
+            setSidebarOpen(false);
+        }
+    }, []);
+
     const liveSites = useMemo(() => {
         if (liveStatuses.length === 0) return sites;
         return sites.map(site => {
@@ -29,12 +34,9 @@ export default function RectifierSiteMapPage() {
         });
     }, [liveStatuses]);
 
-    // Compute filtered site IDs for the map (combines area + status filters)
     const filteredSiteIds = useMemo(() => {
         const hasAreaFilter = areaFilter !== 'all';
         const hasStatusFilter = statusFilter !== null;
-
-        // If no filters active, return undefined (show all)
         if (!hasAreaFilter && !hasStatusFilter) return undefined;
 
         const filtered = liveSites.filter(site => {
@@ -84,13 +86,22 @@ export default function RectifierSiteMapPage() {
             />
             <div className="sitemap-content">
                 {sidebarOpen && (
-                    <SiteSidebar
-                        sites={liveSites}
-                        selectedSiteId={selectedSite?.id ?? null}
-                        onSelectSite={(site) => setSelectedSite(site)}
-                        areaFilter={areaFilter}
-                        onAreaFilterChange={setAreaFilter}
-                    />
+                    <>
+                        <div className="mobile-map-overlay" onClick={() => setSidebarOpen(false)} />
+                        <SiteSidebar
+                            sites={liveSites}
+                            selectedSiteId={selectedSite?.id ?? null}
+                            onSelectSite={(site) => {
+                                setSelectedSite(site);
+                                if (window.innerWidth <= 768) {
+                                    setSidebarOpen(false);
+                                }
+                            }}
+                            areaFilter={areaFilter}
+                            onAreaFilterChange={setAreaFilter}
+                            onClose={() => setSidebarOpen(false)}
+                        />
+                    </>
                 )}
                 <div className="sitemap-map-wrapper">
                     <button
@@ -122,12 +133,15 @@ export default function RectifierSiteMapPage() {
                         filteredSiteIds={filteredSiteIds}
                     />
                     {selectedSite && (
-                        <div className="sitemap-preview-overlay">
-                            <SitePreviewCard
-                                site={liveSites.find(s => s.id === selectedSite.id) ?? selectedSite}
-                                onClose={() => setSelectedSite(null)}
-                            />
-                        </div>
+                        <>
+                            <div className="mobile-map-overlay" onClick={() => setSelectedSite(null)} />
+                            <div className="sitemap-preview-overlay">
+                                <SitePreviewCard
+                                    site={liveSites.find(s => s.id === selectedSite.id) ?? selectedSite}
+                                    onClose={() => setSelectedSite(null)}
+                                />
+                            </div>
+                        </>
                     )}
                 </div>
             </div>

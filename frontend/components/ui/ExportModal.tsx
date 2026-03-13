@@ -71,16 +71,13 @@ function CalendarView({
         const week = [];
         for (let j = 0; j < 7; j++) {
             if (i === 0 && j < firstDayOfMonth) {
-                // Previous month days
                 const prevMonthDate = new Date(currentYear, currentMonth - 1, daysInPrevMonth - firstDayOfMonth + j + 1);
                 week.push({ day: prevMonthDate.getDate(), isCurrentMonth: false, date: prevMonthDate });
             } else if (dayCount <= daysInMonth) {
-                // Current month days
                 const d = new Date(currentYear, currentMonth, dayCount);
                 week.push({ day: dayCount, isCurrentMonth: true, date: d });
                 dayCount++;
             } else {
-                // Next month days
                 const nextMonthDate = new Date(currentYear, currentMonth + 1, nextMonthDayCount);
                 week.push({ day: nextMonthDayCount, isCurrentMonth: false, date: nextMonthDate });
                 nextMonthDayCount++;
@@ -99,7 +96,6 @@ function CalendarView({
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {/* Header / Type */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <div style={{
                     width: '32px', height: '32px',
@@ -115,7 +111,6 @@ function CalendarView({
                 </span>
             </div>
 
-            {/* Input display */}
             <div style={{
                 padding: '0.875rem 1rem',
                 background: 'rgba(255, 255, 255, 0.03)',
@@ -128,7 +123,6 @@ function CalendarView({
                 {formatDateInput(selectedDate)}
             </div>
 
-            {/* Calendar Widget */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem' }}>
                     <button onClick={handlePrevMonth} style={{ color: '#8493a8', cursor: 'pointer', background: 'transparent', border: 'none', padding: '0.25rem' }}>
@@ -221,7 +215,6 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(today);
 
-    // Initial calendars based on today's date
     const [startMonth, setStartMonth] = useState<number>(today.getMonth());
     const [startYear, setStartYear] = useState<number>(today.getFullYear());
 
@@ -242,7 +235,7 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
             zIndex: 9999
         }}>
             <div style={{
-                background: '#131b29', // Fallback color
+                background: '#131b29',
                 backgroundImage: 'linear-gradient(135deg, #161f30 0%, #101622 100%)',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '16px',
@@ -253,7 +246,6 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
                 flexDirection: 'column',
                 overflow: 'hidden'
             }}>
-                {/* Header */}
                 <div style={{
                     padding: '1.25rem 1.75rem',
                     borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -287,9 +279,7 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
                     </button>
                 </div>
 
-                {/* Body / Calendars */}
                 <div style={{ display: 'flex', padding: '1.75rem' }}>
-                    {/* Start Date Column */}
                     <div style={{ flex: 1, paddingRight: '1.75rem', borderRight: '1px solid rgba(255, 255, 255, 0.05)' }}>
                         <CalendarView
                             selectedDate={startDate}
@@ -302,7 +292,6 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
                             isStart={true}
                         />
                     </div>
-                    {/* End Date Column */}
                     <div style={{ flex: 1, paddingLeft: '1.75rem' }}>
                         <CalendarView
                             selectedDate={endDate}
@@ -317,7 +306,6 @@ export default function ExportModal({ isOpen, onClose, onExport }: ExportModalPr
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div style={{
                     padding: '1.25rem 1.75rem',
                     borderTop: '1px solid rgba(255,255,255,0.05)',

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, MapPin, Signal, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Signal, ChevronRight, X } from 'lucide-react';
 import { Site } from '@/data/sites';
 
 interface SiteSidebarProps {
@@ -10,9 +10,10 @@ interface SiteSidebarProps {
     onSelectSite: (site: Site) => void;
     areaFilter: string;
     onAreaFilterChange: (area: string) => void;
+    onClose?: () => void;
 }
 
-export default function SiteSidebar({ sites, selectedSiteId, onSelectSite, areaFilter, onAreaFilterChange }: SiteSidebarProps) {
+export default function SiteSidebar({ sites, selectedSiteId, onSelectSite, areaFilter, onAreaFilterChange, onClose }: SiteSidebarProps) {
     const [search, setSearch] = useState('');
 
     const areas = Array.from(new Set(sites.map(s => s.area))).sort();
@@ -39,7 +40,14 @@ export default function SiteSidebar({ sites, selectedSiteId, onSelectSite, areaF
                     <MapPin size={16} />
                     Site Directory
                 </h2>
-                <span className="site-sidebar-count">{filtered.length} sites</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span className="site-sidebar-count">{filtered.length} sites</span>
+                    {onClose && (
+                        <button className="site-sidebar-close-btn" onClick={onClose} aria-label="Close Sidebar">
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="site-sidebar-search">

@@ -3,8 +3,6 @@ from .models import SensorData
 
 
 class SensorDataSerializer(serializers.ModelSerializer):
-    """Serializer untuk model SensorData."""
-
     class Meta:
         model = SensorData
         fields = [

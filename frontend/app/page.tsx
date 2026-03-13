@@ -7,7 +7,6 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect everyone to the site map directly initially
     router.replace('/site-map');
   }, [router]);
 

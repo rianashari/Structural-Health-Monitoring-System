@@ -19,7 +19,6 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
     const onSelectSiteRef = useRef(onSelectSite);
     const sitesRef = useRef(sites);
 
-    // Keep refs current
     onSelectSiteRef.current = onSelectSite;
     sitesRef.current = sites;
 
@@ -39,12 +38,10 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
         });
     }, []);
 
-    // Initialize map (once)
     useEffect(() => {
         if (!mapRef.current || mapInstanceRef.current) return;
 
         import('leaflet').then((L) => {
-            // Guard against React StrictMode double-mount (check AFTER async import)
             if (!mapRef.current || mapInstanceRef.current) return;
             const el = mapRef.current as HTMLDivElement & { _leaflet_id?: number };
             if (el._leaflet_id) return;
@@ -74,7 +71,6 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
 
             mapInstanceRef.current = map;
 
-            // Create markers using the LATEST sites data (via ref)
             const currentSites = sitesRef.current;
             currentSites.forEach(site => {
                 const marker = L.marker([site.lat, site.lng], {
@@ -98,7 +94,6 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
                 markersRef.current.set(site.id, marker);
             });
 
-            // Fit bounds
             if (currentSites.length > 0) {
                 const group = L.featureGroup(Array.from(markersRef.current.values()));
                 map.fitBounds(group.getBounds().pad(0.15));
@@ -113,10 +108,8 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
                 markersRef.current.clear();
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Update marker icons when sites data changes (live status updates)
     useEffect(() => {
         const L = leafletRef.current;
         if (!L || !mapInstanceRef.current) return;
@@ -129,13 +122,10 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
         });
     }, [sites, createIcon]);
 
-    // Show/hide markers based on filtered site IDs
     useEffect(() => {
         const map = mapInstanceRef.current;
         const L = leafletRef.current;
         if (!map || !L) return;
-
-        // If no filter set is provided, show all markers
         const showAll = !filteredSiteIds;
 
         markersRef.current.forEach((marker, siteId) => {
@@ -147,7 +137,6 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
             }
         });
 
-        // Fit bounds to visible markers
         const visibleMarkers = Array.from(markersRef.current.entries())
             .filter(([id]) => showAll || filteredSiteIds!.has(id))
             .map(([, marker]) => marker);
@@ -158,14 +147,12 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
         }
     }, [filteredSiteIds]);
 
-    // Fly to selected site
     useEffect(() => {
         if (selectedSite && mapInstanceRef.current) {
             mapInstanceRef.current.flyTo([selectedSite.lat, selectedSite.lng], 12, { duration: 0.8 });
         }
     }, [selectedSite]);
 
-    // Invalidate map size when sidebar toggles
     useEffect(() => {
         if (mapInstanceRef.current) {
             setTimeout(() => {

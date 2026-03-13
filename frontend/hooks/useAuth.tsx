@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Session expires after 24 hours (in milliseconds)
 const SESSION_DURATION = 8 * 60 * 60 * 1000;
 
 export function useAuth() {
@@ -19,10 +18,8 @@ export function useAuth() {
 
         if (!auth || !loginTime) return false;
 
-        // Check if session has expired
         const elapsed = Date.now() - parseInt(loginTime, 10);
         if (elapsed > SESSION_DURATION) {
-            // Session expired — auto logout
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('username');
             localStorage.removeItem('loginTime');

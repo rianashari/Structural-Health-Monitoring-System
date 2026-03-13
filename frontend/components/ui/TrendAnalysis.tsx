@@ -38,7 +38,6 @@ const CustomTooltip = ({ active, payload, label, unit, color }: any) => {
 };
 
 export default function TrendAnalysis({ history }: TrendAnalysisProps) {
-    // Transform API data for charts (take last 10 data points, reversed so oldest first)
     const recentData = history.slice(0, 30).reverse();
 
     const windData = recentData.map(d => ({
@@ -56,7 +55,6 @@ export default function TrendAnalysis({ history }: TrendAnalysisProps) {
         pv: d.sway
     }));
 
-    // Calculate dynamic Y-axis domains
     const windValues = windData.map(d => d.pv);
     const windMin = windValues.length > 0 ? Math.max(0, Math.floor(Math.min(...windValues) * 5) / 5) : 0;
     const windMax = windValues.length > 0 ? Math.ceil(Math.max(...windValues) * 5) / 5 + 0.2 : 2;
@@ -79,7 +77,6 @@ export default function TrendAnalysis({ history }: TrendAnalysisProps) {
             </div>
 
             <div className="charts-grid">
-                {/* Wind Speed Trend */}
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Wind Speed Trend</h4>
@@ -104,7 +101,6 @@ export default function TrendAnalysis({ history }: TrendAnalysisProps) {
                     </div>
                 </div>
 
-                {/* Total Tilt Trend */}
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Total Tilt Trend</h4>
@@ -129,7 +125,6 @@ export default function TrendAnalysis({ history }: TrendAnalysisProps) {
                     </div>
                 </div>
 
-                {/* Sway Trend */}
                 <div className="chart-card">
                     <div className="chart-header">
                         <h4 className="chart-title text-primary">Sway Trend</h4>

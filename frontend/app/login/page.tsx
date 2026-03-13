@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Simple hardcoded credentials
 const VALID_USERNAME = 'nyk_verti';
 const VALID_PASSWORD = 'adminnyk123';
 
@@ -16,7 +15,6 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
 
-    // Redirect if already logged in with valid session
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const auth = localStorage.getItem('isAuthenticated') === 'true';
@@ -26,7 +24,6 @@ export default function LoginPage() {
             if (auth && loginTime && (Date.now() - parseInt(loginTime, 10)) < SESSION_DURATION) {
                 router.replace('/');
             } else if (auth) {
-                // Session expired or missing loginTime — clear stale auth
                 localStorage.removeItem('isAuthenticated');
                 localStorage.removeItem('username');
                 localStorage.removeItem('loginTime');
@@ -34,7 +31,6 @@ export default function LoginPage() {
         }
     }, [router]);
 
-    // Generate floating particles for background
     useEffect(() => {
         const generated = Array.from({ length: 18 }, (_, i) => ({
             id: i,
@@ -76,7 +72,6 @@ export default function LoginPage() {
             justifyContent: 'center',
             background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0c1445 100%)',
         }}>
-            {/* Animated background grid */}
             <div style={{
                 position: 'absolute',
                 inset: 0,
@@ -85,7 +80,6 @@ export default function LoginPage() {
                 backgroundSize: '60px 60px',
             }} />
 
-            {/* Floating particles */}
             {particles.map((p) => (
                 <div
                     key={p.id}
@@ -104,7 +98,6 @@ export default function LoginPage() {
                 />
             ))}
 
-            {/* Glowing orbs */}
             <div style={{
                 position: 'absolute', top: '-10%', left: '-10%', width: '384px', height: '384px',
                 borderRadius: '50%', opacity: 0.2, filter: 'blur(48px)',
@@ -121,7 +114,6 @@ export default function LoginPage() {
                 background: 'radial-gradient(circle, #818cf8, transparent)',
             }} />
 
-            {/* Login Card */}
             <div style={{
                 position: 'relative',
                 zIndex: 10,
@@ -134,7 +126,6 @@ export default function LoginPage() {
                 borderRadius: '24px',
                 boxShadow: '0 0 60px rgba(99, 102, 241, 0.15), 0 25px 60px rgba(0,0,0,0.5)',
             }}>
-                {/* Top accent bar */}
                 <div style={{
                     height: '4px',
                     width: '100%',
@@ -143,7 +134,6 @@ export default function LoginPage() {
                 }} />
 
                 <div style={{ padding: '2rem' }}>
-                    {/* Logo / Icon */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
                         <div style={{
                             width: '64px', height: '64px', borderRadius: '16px',
@@ -164,9 +154,7 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Form */}
                     <form onSubmit={handleLogin}>
-                        {/* Username */}
                         <div style={{ marginBottom: '1.25rem' }}>
                             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: 'rgba(148, 163, 184, 1)' }}>
                                 Username
@@ -207,7 +195,6 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Password */}
                         <div style={{ marginBottom: '1.25rem' }}>
                             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: 'rgba(148, 163, 184, 1)' }}>
                                 Password
@@ -271,7 +258,6 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Error message */}
                         {error && (
                             <div style={{
                                 display: 'flex', alignItems: 'center', gap: '0.5rem',
@@ -290,7 +276,6 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        {/* Submit button */}
                         <button
                             id="login-btn"
                             type="submit"
@@ -337,7 +322,6 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    {/* Footer hint */}
                     <p style={{ textAlign: 'center', fontSize: '0.75rem', marginTop: '1.5rem', color: 'rgba(100, 116, 139, 0.7)' }}>
                         © 2025 PT NAYAKA PRATAMA MONITORING SYSTEM
                     </p>

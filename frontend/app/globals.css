@@ -1,18 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root {
-  /* Core Colors */
   --bg-main: #060912;
   --bg-card: #0c121e;
   --bg-card-hover: #131a29;
   --bg-surface: #131b29;
 
-  /* Text Colors */
   --text-primary: #f8fafc;
   --text-secondary: #8493a8;
   --text-tertiary: #52627a;
-
-  /* Status Colors & Highlights */
   --accent-teal: #0ebdb5;
   --accent-teal-subtle: rgba(14, 189, 181, 0.1);
   --accent-green: #08b87c;
@@ -21,11 +17,9 @@
   --accent-purple: #8b5cf6;
   --accent-blue: #0ea5e9;
 
-  /* Borders & Dividers */
   --border-color: rgba(255, 255, 255, 0.05);
   --border-light: rgba(255, 255, 255, 0.1);
 
-  /* Radii */
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -65,11 +59,21 @@ button {
   cursor: pointer;
 }
 
-/* Utilities */
 @keyframes pulse-icon {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .pulsing-icon {
@@ -157,7 +161,6 @@ button {
   gap: 1.5rem;
 }
 
-/* Dashboard Layout */
 .dashboard-container {
   max-width: 1440px;
   margin: 0 auto;
@@ -167,7 +170,6 @@ button {
   gap: 1rem;
 }
 
-/* Section Headers & Main Title */
 .top-header {
   font-size: 0.8125rem;
   font-weight: 600;
@@ -219,7 +221,6 @@ button {
   border-radius: 4px;
 }
 
-/* Base Badge */
 .badge {
   padding: 0.3rem 0.6rem;
   border-radius: var(--radius-full);
@@ -261,7 +262,6 @@ button {
   box-shadow: 0 0 10px rgba(14, 189, 181, 0.5);
 }
 
-/* Hero Card */
 .hero-card {
   position: relative;
   border-radius: var(--radius-xl);
@@ -353,7 +353,6 @@ button {
   font-weight: 600;
 }
 
-/* System Status Bar */
 .system-status-bar {
   display: flex;
   align-items: center;
@@ -415,9 +414,9 @@ button {
   color: var(--text-secondary);
 }
 
-/* Sensor Grid */
 .sensor-grid {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto auto;
   gap: 0.75rem;
 }
@@ -549,7 +548,6 @@ button {
   padding-top: 0.5rem;
 }
 
-/* Charts Grid */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -590,7 +588,6 @@ button {
   width: 100%;
 }
 
-/* History Table */
 .history-section {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -752,11 +749,6 @@ button {
   border: 1px solid rgba(8, 184, 124, 0.2);
 }
 
-/* ========================================
-   Site Map Page Styles
-   ======================================== */
-
-/* Page Layout */
 .sitemap-page {
   height: 100vh;
   display: flex;
@@ -771,7 +763,6 @@ button {
   overflow: hidden;
 }
 
-/* Header */
 .sitemap-header {
   display: flex;
   align-items: center;
@@ -905,7 +896,6 @@ button {
   border-color: rgba(244, 63, 94, 0.4);
 }
 
-/* Sidebar */
 .site-sidebar {
   width: 320px;
   min-width: 320px;
@@ -1130,7 +1120,6 @@ button {
   font-size: 0.75rem;
 }
 
-/* Map Wrapper */
 .sitemap-map-wrapper {
   flex: 1;
   position: relative;
@@ -1168,7 +1157,6 @@ button {
   transform: scale(1.05);
 }
 
-/* Preview Card Overlay */
 .sitemap-preview-overlay {
   position: absolute;
   top: 1rem;
@@ -1189,7 +1177,6 @@ button {
   }
 }
 
-/* Preview Card */
 .site-preview-card {
   width: 320px;
   background: rgba(12, 18, 30, 0.96);
@@ -1300,7 +1287,6 @@ button {
   box-shadow: 0 4px 16px rgba(14, 189, 181, 0.3);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .site-sidebar {
     display: none;

@@ -33,13 +33,12 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
     const windPercent = Math.min((windSpeed / maxWind) * 100, 100);
 
     const activeSite = sites.find(s => s.code === latest?.device_id);
-    const swayTolerance = activeSite ? activeSite.towerHeight * 5 : 30; // fallback 30 if not found
-    const tiltTolerance = 0.286 // fallback 0.05 if not found
+    const swayTolerance = activeSite ? activeSite.towerHeight * 5 : 30;
+    const tiltTolerance = 0.286
 
     const hasPitch = latest !== null && pitch !== 0;
     const hasRoll = latest !== null && roll !== 0;
 
-    // Status berdasarkan indikator dari MQTT
     const isTolerance = indikator === 'tolerance';
     const towerStatus = isTolerance ? 'TOLERANCE' : 'INTOLERANCE';
     const statusColor = isTolerance ? 'var(--accent-green)' : 'var(--accent-red)';
@@ -56,8 +55,6 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
 
     return (
         <div className="flex-col gap-3">
-
-            {/* Real-Time Telemetry Header */}
             <div className="section-header">
                 <div className="section-title-wrap">
                     <div className="section-icon bg-teal-subtle">
@@ -76,7 +73,6 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
             </div>
 
-            {/* System Status Bar */}
             <div className="system-status-bar justify-between">
                 <div className="flex items-center gap-4">
                     <div className="status-main">
@@ -105,10 +101,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
             </div>
 
-            {/* Sensor Grid */}
             <div className="sensor-grid">
-
-                {/* Main Sensor: Wind Speed */}
                 <div className="sensor-card-main" style={{ gridRow: 'span 2', display: 'flex', flexDirection: 'column' }}>
                     <div className="sensor-header" style={{ alignItems: 'center' }}>
                         <div className="sensor-icon bg-teal-subtle text-teal">
@@ -184,8 +177,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                     </div>
                 </div> */}
 
-                {/* Tower Health Assessment */}
-                <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '3 / span 1', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+                <div className="sensor-card" style={{ padding: '1.25rem', borderColor: statusBorder, gridColumn: '3 / span 1', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
                     <div className="sensor-header" style={{ marginBottom: '0.5rem', zIndex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div className="sensor-icon" style={{ color: statusColor, background: statusBg, borderColor: statusBorder, borderWidth: '1px', borderStyle: 'solid' }}>
                             {isTolerance ? <ShieldCheck size={20} /> : <AlertTriangle size={20} className="pulsing-icon" />}
@@ -193,7 +185,6 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                         <div className="sensor-label" style={{ color: 'var(--text-secondary)', marginBottom: 0, fontWeight: 700 }}>Alert & Notifications</div>
                     </div>
 
-                    {/* Glowing background effect */}
                     <div style={{
                         position: 'absolute', top: '-10%', right: '-10%', width: '150%', height: '150%',
                         background: `radial-gradient(circle at top right, ${statusBg} 0%, transparent 60%)`,
@@ -236,7 +227,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                         </div>
                     </div>
 
-                    <div style={{ marginTop: 'auto', paddingTop: '1rem', width: '100%', zIndex: 1 }}>
+                    <div style={{ marginTop: 'auto', paddingTop: '1.5rem', width: '100%', zIndex: 1 }}>
                         <div className="flex items-center justify-between" style={{ padding: '0.5rem', background: statusBg, borderRadius: '6px', border: `1px solid ${statusBorder}` }}>
                             <div className="flex items-center gap-2 font-bold" style={{ fontSize: '0.65rem', color: statusColor }}>
                                 <Activity size={12} className={towerStatus !== 'TOLERANCE' ? "pulsing-icon" : ""} />
@@ -268,10 +259,8 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                             <span className="tolerance-val">{swayTolerance} mm</span>
                         </div>
                     </div>
-                    {/* <div className="card-footer-text">Standar: 18 mm</div> */}
                 </div>
 
-                {/* Total Tilt */}
                 <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)', gridColumn: '2', gridRow: '2' }}>
                     <div className="flex justify-between items-start w-full h-full">
                         <div className="flex items-center gap-4">

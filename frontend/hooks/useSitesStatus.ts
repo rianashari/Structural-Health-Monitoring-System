@@ -23,7 +23,6 @@ export function useSitesStatus(refreshInterval = 15000) {
                 setStatuses(data);
             }
         } catch {
-            // silent fail
         }
     }, []);
 

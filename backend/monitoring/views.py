@@ -91,13 +91,13 @@ def sensor_data_history(request):
 def sensor_data_sites_status(request):
     """
     GET /api/sensor-data/sites-status/ → Get latest reading per device_id with live status.
-    Returns one entry per device with status: online (< 5min), warning (< 30min), offline (> 30min).
+    Returns one entry per device with status: online (< 2min), warning (< 5min), offline (> 5min).
     """
     from datetime import timedelta
 
     now = timezone.now()
-    threshold_online = now - timedelta(minutes=5)
-    threshold_warning = now - timedelta(minutes=30)
+    threshold_online = now - timedelta(minutes=2)
+    threshold_warning = now - timedelta(minutes=5)
 
     # Get latest timestamp per device_id
     latest_ids = (

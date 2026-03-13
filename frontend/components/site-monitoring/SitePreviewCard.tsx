@@ -28,7 +28,7 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
 
     // Derived tower health logic from telemetry parameters
     const windSpeed = latest?.wind_speed ?? 0;
-    const pitch = latest?.pitch ?? 0;
+    // const pitch = latest?.pitch ?? 0;
     const roll = latest?.roll ?? 0;
     const sway = latest?.sway ?? 0;
     const totalTilt = latest?.total_tilt ?? 0;
@@ -101,14 +101,14 @@ export default function SitePreviewCard({ site, onClose }: SitePreviewCardProps)
                         <span className="site-preview-label"><Wind size={10} style={{ marginRight: '4px' }} /> Wind Speed</span>
                         <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.wind_speed.toFixed(2) : '--'} km/h</span>
                     </div>
-                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                    {/* <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
                         <span className="site-preview-label"><Compass size={10} style={{ marginRight: '4px' }} /> Pitch</span>
                         <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.pitch.toFixed(3) : '--'}°</span>
-                    </div>
-                    <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
+                    </div> */}
+                    {/* <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
                         <span className="site-preview-label"><Activity size={10} style={{ marginRight: '4px' }} /> Roll</span>
                         <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.roll.toFixed(3) : '--'}°</span>
-                    </div>
+                    </div> */}
                     <div className="site-preview-info-row" style={{ marginBottom: '0.25rem' }}>
                         <span className="site-preview-label"><ArrowRightLeft size={10} style={{ marginRight: '4px' }} /> Sway</span>
                         <span className="site-preview-value font-mono" style={{ fontSize: '0.7rem' }}>{latest ? latest.sway.toFixed(1) : '--'} mm</span>

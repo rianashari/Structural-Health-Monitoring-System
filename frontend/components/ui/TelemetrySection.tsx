@@ -138,7 +138,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 {/* Pitch */}
-                <div className="sensor-card" style={{ borderColor: 'rgba(250, 204, 21, 0.4)', gridColumn: '2', gridRow: '1', justifyContent: 'center' }}>
+                {/* <div className="sensor-card" style={{ borderColor: 'rgba(250, 204, 21, 0.4)', gridColumn: '2', gridRow: '1', justifyContent: 'center' }}>
                     <div className="flex items-center gap-4 w-full">
                         <div className="sensor-icon" style={{ color: '#facc15', background: 'rgba(250, 204, 21, 0.1)' }}>
                             <Compass size={18} />
@@ -156,10 +156,10 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                             )}
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Roll */}
-                <div className="sensor-card" style={{ borderColor: 'rgba(249, 115, 22, 0.4)', gridColumn: '2', gridRow: '2', justifyContent: 'center' }}>
+                {/* <div className="sensor-card" style={{ borderColor: 'rgba(249, 115, 22, 0.4)', gridColumn: '2', gridRow: '2', justifyContent: 'center' }}>
                     <div className="flex items-center gap-4 w-full">
                         <div className="sensor-icon" style={{ color: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)' }}>
                             <Activity size={18} />
@@ -177,10 +177,10 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                             )}
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Tower Health Assessment */}
-                <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '4', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+                <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '3 / span 2', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
                     <div className="sensor-header" style={{ marginBottom: '0.5rem', zIndex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div className="sensor-icon" style={{ color: statusColor, background: statusBg, borderColor: statusBorder, borderWidth: '1px', borderStyle: 'solid' }}>
                             {isTolerance ? <ShieldCheck size={20} /> : <AlertTriangle size={20} className="pulsing-icon" />}
@@ -212,14 +212,14 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                                 <span style={{ color: 'var(--text-secondary)' }}>Wind Speed</span>
                                 <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
-                            <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
+                            {/* <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Pitch</span>
                                 <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
                             </div>
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Roll</span>
                                 <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
-                            </div>
+                            </div> */}
                             <div className="flex justify-between items-center" style={{ fontSize: '0.7rem' }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>Sway</span>
                                 <div className={`status-dot ${isTolerance ? 'green' : 'red'}`}></div>
@@ -245,7 +245,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 {/* Sway */}
-                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(14, 165, 233, 0.4)', gridColumn: '3', gridRow: '1' }}>
+                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(14, 165, 233, 0.4)', gridColumn: '2', gridRow: '1' }}>
                     <div className="flex justify-between items-start w-full h-full">
                         <div className="flex items-center gap-4">
                             <div className="sensor-icon" style={{ color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)' }}>
@@ -267,7 +267,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div>
 
                 {/* Total Tilt */}
-                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)', gridColumn: '3', gridRow: '2' }}>
+                <div className="sensor-card" style={{ borderColor: !isTolerance ? 'rgba(244, 63, 94, 0.6)' : 'rgba(244, 63, 94, 0.4)', gridColumn: '2', gridRow: '2' }}>
                     <div className="flex justify-between items-start w-full h-full">
                         <div className="flex items-center gap-4">
                             <div className="sensor-icon" style={{ color: 'var(--accent-red)', background: 'rgba(244, 63, 94, 0.15)' }}>

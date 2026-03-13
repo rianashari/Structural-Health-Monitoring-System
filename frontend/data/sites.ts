@@ -54,7 +54,7 @@ export const sites: Site[] = [
         kabupaten: 'Kota Bekasi',
         status: 'online',
         towerType: 'SST',
-        towerHeight: 62,
+        towerHeight: 52,
     },
     {
         id: 'ckr-04-181',
@@ -68,7 +68,7 @@ export const sites: Site[] = [
         kabupaten: 'Kabupaten Bekasi',
         status: 'online',
         towerType: 'SST',
-        towerHeight: 20,
+        towerHeight: 52,
     },
     {
         id: 'spa-05-017',

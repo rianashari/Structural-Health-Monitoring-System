@@ -13,6 +13,7 @@ import {
     Droplet
 } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
+import { sites } from '@/data/sites';
 
 interface TelemetrySectionProps {
     latest: SensorData | null;
@@ -30,6 +31,10 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
 
     const maxWind = 35;
     const windPercent = Math.min((windSpeed / maxWind) * 100, 100);
+
+    const activeSite = sites.find(s => s.code === latest?.device_id);
+    const swayTolerance = activeSite ? activeSite.towerHeight * 5 : 30; // fallback 30 if not found
+    const tiltTolerance = 0.286 // fallback 0.05 if not found
 
     const hasPitch = latest !== null && pitch !== 0;
     const hasRoll = latest !== null && roll !== 0;
@@ -180,7 +185,7 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                 </div> */}
 
                 {/* Tower Health Assessment */}
-                <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '3 / span 2', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+                <div className="sensor-card" style={{ borderColor: statusBorder, gridColumn: '3 / span 1', gridRow: 'span 2', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
                     <div className="sensor-header" style={{ marginBottom: '0.5rem', zIndex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div className="sensor-icon" style={{ color: statusColor, background: statusBg, borderColor: statusBorder, borderWidth: '1px', borderStyle: 'solid' }}>
                             {isTolerance ? <ShieldCheck size={20} /> : <AlertTriangle size={20} className="pulsing-icon" />}
@@ -260,10 +265,10 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                         </div>
                         <div className="tolerance-badge" style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.2)' }}>
                             <span className="tolerance-label">Toleransi</span>
-                            <span className="tolerance-val">30 mm</span>
+                            <span className="tolerance-val">{swayTolerance} mm</span>
                         </div>
                     </div>
-                    <div className="card-footer-text">Standar: 18 mm</div>
+                    {/* <div className="card-footer-text">Standar: 18 mm</div> */}
                 </div>
 
                 {/* Total Tilt */}
@@ -282,10 +287,9 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                         </div>
                         <div className="tolerance-badge" style={{ color: 'var(--accent-red)', borderColor: 'rgba(244, 63, 94, 0.2)' }}>
                             <span className="tolerance-label">Toleransi</span>
-                            <span className="tolerance-val">0.05°</span>
+                            <span className="tolerance-val">{tiltTolerance}</span>
                         </div>
                     </div>
-                    <div className="card-footer-text">Range: 0° - 90°</div>
                 </div>
 
             </div>

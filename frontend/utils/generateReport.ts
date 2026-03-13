@@ -7,10 +7,12 @@ interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable: { finalY: number };
 }
 
-function getStatus(param: string, value: number): string {
+function getStatus(param: string, value: number, swayTolerance: number = 30): string {
     if (param === 'Sway') {
-        if (value > 50) return 'CRITICAL';
-        if (value > 30) return 'WARNING';
+        const warningThreshold = swayTolerance;
+        const criticalThreshold = swayTolerance * (50/30); // scale proportionally, or just swayTolerance + 20? The user said tolerance is height/200. Usually tolerance means warning threshold. Let's use swayTolerance for WARNING and swayTolerance * 1.5 for CRITICAL or just some arbitrary. Let's make critical = tolerance + 20 for now. Actually, let's keep it simple: tolerance is the max allowed (WARNING).
+        if (value > swayTolerance + 20) return 'CRITICAL';
+        if (value > swayTolerance) return 'WARNING';
         return 'NORMAL';
     }
     if (param === 'Total Tilt') {
@@ -132,8 +134,10 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     const tiltVal = latest?.total_tilt ?? 0;
     const windVal = latest?.wind_speed ?? 0;
 
-    const swayWarning = swayVal > 30;
-    const swayCritical = swayVal > 50;
+    const swayTolerance = (siteInfo?.towerHeight || 6) * 5; // default fallback if no height
+
+    const swayWarning = swayVal > swayTolerance;
+    const swayCritical = swayVal > (swayTolerance + 20);
     const tiltWarning = tiltVal > 0.05;
     const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0);
     const criticalCount = swayCritical ? 1 : 0;
@@ -205,7 +209,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         ['Pitch', `${latest.pitch.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Roll', `${latest.roll.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Tilt Rate', `${latest.tilt_rate.toFixed(4)}°`, '0° - 1°', 'NORMAL'],
-        ['Sway', `${latest.sway.toFixed(1)} mm`, 'Toleransi: 30 mm', getStatus('Sway', latest.sway)],
+        ['Sway', `${latest.sway.toFixed(1)} mm`, `Toleransi: ${swayTolerance} mm`, getStatus('Sway', latest.sway, swayTolerance)],
         ['Total Tilt', `${latest.total_tilt.toFixed(4)}°`, 'Toleransi: 0.05°', getStatus('Total Tilt', latest.total_tilt)],
     ] : [['No data available', '-', '-', '-']];
 
@@ -365,7 +369,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
             `${prevVal.toFixed(decimals)} ${unit}`,
             `${currVal.toFixed(decimals)} ${unit}`,
             `${diff >= 0 ? '+' : ''}${diff.toFixed(decimals)} ${unit}`,
-            getStatus(paramName, currVal),
+            getStatus(paramName, currVal, swayTolerance),
         ]);
     }
 

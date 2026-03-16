@@ -30,8 +30,9 @@ function getStatus(param: string, value: number, swayTolerance: number = 30): st
 }
 
 function getStatusColor(status: string): [number, number, number] {
-    if (status === 'CRITICAL') return [220, 38, 38];
-    if (status === 'WARNING') return [234, 179, 8];
+    const s = status.toUpperCase();
+    if (s === 'CRITICAL' || s.includes('CRITICAL') || s.includes('BAHAYA') || s.includes('AWAS')) return [220, 38, 38];
+    if (s === 'WARNING' || s.includes('WARNING') || s.includes('WASPADA') || s.includes('SIAGA')) return [234, 179, 8];
     return [34, 197, 94];
 }
 
@@ -42,7 +43,8 @@ interface SiteInfo {
     towerHeight?: number;
 }
 
-export function generateReport(latest: SensorData | null, history: SensorData[], startDate?: Date | null, endDate?: Date | null, siteInfo?: SiteInfo) {
+export function generateReport(latest: SensorData | null, historyData: SensorData[], startDate?: Date | null, endDate?: Date | null, siteInfo?: SiteInfo) {
+    const history = historyData.slice(0, 200);
     const doc = new jsPDF('p', 'mm', 'a4') as jsPDFWithAutoTable;
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
@@ -119,7 +121,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     const tiltWarning = tiltVal > 0.280;
     const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0);
     const criticalCount = swayCritical ? 1 : 0;
-    const systemStatus = criticalCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'ALL CLEAR';
+    const systemStatus = latest?.indikator ? latest.indikator.toUpperCase() : (criticalCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'ALL CLEAR');
 
     const cardWidth = (contentWidth - 6) / 3;
     const cards = [

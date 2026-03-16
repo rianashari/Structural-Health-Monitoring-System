@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, MapPin, Signal, ChevronRight, X } from 'lucide-react';
+import { Search, MapPin, ChevronRight, X, TowerControl } from 'lucide-react';
 import { Site } from '@/data/sites';
 
 interface SiteSidebarProps {
@@ -99,7 +99,7 @@ export default function SiteSidebar({ sites, selectedSiteId, onSelectSite, areaF
                         <div className="site-sidebar-item-right">
                             <span className="site-sidebar-item-area">{site.area}</span>
                             <div className="site-sidebar-item-meta">
-                                <Signal size={10} />
+                                <TowerControl size={10} />
                                 <span>{site.towerHeight}m</span>
                             </div>
                             <ChevronRight size={14} className="site-sidebar-chevron" />

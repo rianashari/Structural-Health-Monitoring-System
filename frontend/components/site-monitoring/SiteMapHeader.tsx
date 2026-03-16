@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, LogOut, Radio } from 'lucide-react';
+import { MapPin, LogOut, Radio, Settings } from 'lucide-react';
 import { Site } from '@/data/sites';
 
 interface SiteMapHeaderProps {
@@ -21,12 +21,6 @@ export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onSt
             <div className="sitemap-header-left">
                 <div 
                     className="sitemap-logo" 
-                    onClick={(e) => {
-                        if (e.detail === 5 && onToggleHidden) {
-                            onToggleHidden();
-                        }
-                    }}
-                    style={{ cursor: 'pointer' }}
                     title="SHM Logo"
                 >
                     <Radio size={20} />
@@ -80,12 +74,24 @@ export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onSt
                 )}
             </div>
 
-            {onLogout && (
-                <button onClick={onLogout} className="sitemap-logout-btn logout-mobile-btn">
-                    <LogOut size={14} />
-                    <span className="hide-mobile">Logout</span>
-                </button>
-            )}
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                {onToggleHidden && (
+                    <button 
+                        onClick={onToggleHidden} 
+                        className="sitemap-logout-btn"
+                        style={{ background: '#0c121ef2', borderColor: '#4338ca' }}
+                    >
+                        <Settings size={14} />
+                        <span className="hide-mobile">Set Site</span>
+                    </button>
+                )}
+                {onLogout && (
+                    <button onClick={onLogout} className="sitemap-logout-btn logout-mobile-btn">
+                        <LogOut size={14} />
+                        <span className="hide-mobile">Logout</span>
+                    </button>
+                )}
+            </div>
         </header>
     );
 }

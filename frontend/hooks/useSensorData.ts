@@ -8,6 +8,7 @@ export interface SensorData {
     device_id?: string;
     timestamp: string;
     wind_speed: number;
+    wind_speed_ms: number;
     pitch: number;
     roll: number;
     tilt_rate: number;

@@ -8,9 +8,10 @@ interface SiteMapHeaderProps {
     sites?: Site[];
     statusFilter: string | null;
     onStatusFilterChange: (status: string | null) => void;
+    onToggleHidden?: () => void;
 }
 
-export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onStatusFilterChange }: SiteMapHeaderProps) {
+export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onStatusFilterChange, onToggleHidden }: SiteMapHeaderProps) {
     const onlineCount = sites.filter(s => s.status === 'online').length;
     const warningCount = sites.filter(s => s.status === 'warning').length;
     const offlineCount = sites.filter(s => s.status === 'offline').length;
@@ -18,7 +19,16 @@ export default function SiteMapHeader({ onLogout, sites = [], statusFilter, onSt
     return (
         <header className="sitemap-header">
             <div className="sitemap-header-left">
-                <div className="sitemap-logo">
+                <div 
+                    className="sitemap-logo" 
+                    onClick={(e) => {
+                        if (e.detail === 5 && onToggleHidden) {
+                            onToggleHidden();
+                        }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                    title="SHM Logo"
+                >
                     <Radio size={20} />
                 </div>
                 <div>

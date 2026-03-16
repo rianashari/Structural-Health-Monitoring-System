@@ -10,6 +10,7 @@ class SensorDataSerializer(serializers.ModelSerializer):
             'device_id',
             'timestamp',
             'wind_speed',
+            'wind_speed_ms',
             'pitch',
             'roll',
             'tilt_rate',

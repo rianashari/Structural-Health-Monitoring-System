@@ -8,6 +8,7 @@ export interface SiteStatus {
     live_status: 'online' | 'warning' | 'offline';
     timestamp: string;
     wind_speed: number;
+    wind_speed_ms: number;
     total_tilt: number;
     sway: number;
 }

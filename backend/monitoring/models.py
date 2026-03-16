@@ -20,7 +20,11 @@ class SensorData(models.Model):
     )
     wind_speed = models.FloatField(
         default=0.0,
-        help_text='Kecepatan angin dalam km/h'
+        help_text='Kecepatan angin dalam knot'
+    )
+    wind_speed_ms = models.FloatField(
+        default=0.0,
+        help_text='Kecepatan angin dalam m/s'
     )
     pitch = models.FloatField(
         default=0.0,

@@ -22,6 +22,7 @@ interface TelemetrySectionProps {
 
 export default function TelemetrySection({ latest, isConnected }: TelemetrySectionProps) {
     const windSpeed = latest?.wind_speed ?? 0;
+    const windSpeedMs = latest?.wind_speed_ms ?? 0;
     const pitch = latest?.pitch ?? 0;
     const roll = latest?.roll ?? 0;
     const tiltRate = latest?.tilt_rate ?? 0;
@@ -115,15 +116,18 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
                     <div className="flex-col flex-1" style={{ marginTop: '2.5rem', justifyContent: 'center' }}>
                         <div className="sensor-label">CURRENT READING</div>
                         <div className="sensor-value-main">
-                            {windSpeed.toFixed(2)} <span className="sensor-unit">km/h</span>
+                            {windSpeed.toFixed(2)} <span className="sensor-unit">knot</span>
                         </div>
-                        <div className="sensor-range">Max range: {maxWind} km/h</div>
+                        <div className="sensor-value-secondary text-tertiary" style={{ fontSize: '0.8rem', marginTop: '-0.3rem', marginBottom: '0.4rem', fontWeight: 600 }}>
+                            {windSpeedMs.toFixed(2)} <span className="sensor-unit" style={{ fontSize: '0.65rem' }}>m/s</span>
+                        </div>
+                        <div className="sensor-range">Max range: {maxWind} knot</div>
                     </div>
 
                     <div style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
                         <div className="progress-labels">
-                            <span>0 km/h</span>
-                            <span>{maxWind} km/h</span>
+                            <span>0 knot</span>
+                            <span>{maxWind} knot</span>
                         </div>
                         <div className="progress-bar-container">
                             <div className="progress-bar-fill" style={{ width: `${windPercent}%` }}></div>

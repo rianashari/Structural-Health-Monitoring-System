@@ -15,24 +15,52 @@ export default function RectifierSiteMapPage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [areaFilter, setAreaFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
+    const [showSettings, setShowSettings] = useState(false);
+    const [hiddenSiteIds, setHiddenSiteIds] = useState<Set<string>>(new Set());
     const liveStatuses = useSitesStatus(15000);
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
             setSidebarOpen(false);
         }
+        
+        try {
+            const saved = localStorage.getItem('hiddenSites');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    setHiddenSiteIds(new Set(parsed));
+                }
+            } else {
+                const initialHidden = sites.filter(s => s.isHidden).map(s => s.id);
+                setHiddenSiteIds(new Set(initialHidden));
+            }
+        } catch (e) {}
     }, []);
 
+    const toggleSiteVisibility = (siteId: string) => {
+        const newHidden = new Set(hiddenSiteIds);
+        if (newHidden.has(siteId)) {
+            newHidden.delete(siteId);
+        } else {
+            newHidden.add(siteId);
+        }
+        setHiddenSiteIds(newHidden);
+        localStorage.setItem('hiddenSites', JSON.stringify(Array.from(newHidden)));
+    };
+
     const liveSites = useMemo(() => {
-        if (liveStatuses.length === 0) return sites;
-        return sites.map(site => {
+        let visibleSites = sites.filter(s => !hiddenSiteIds.has(s.id));
+
+        if (liveStatuses.length === 0) return visibleSites;
+        return visibleSites.map(site => {
             const live = liveStatuses.find(s => s.device_id === site.code);
             if (live) {
                 return { ...site, status: live.live_status as Site['status'] };
             }
             return site;
         });
-    }, [liveStatuses]);
+    }, [liveStatuses, hiddenSiteIds]);
 
     const filteredSiteIds = useMemo(() => {
         const hasAreaFilter = areaFilter !== 'all';
@@ -83,6 +111,7 @@ export default function RectifierSiteMapPage() {
                 sites={liveSites}
                 statusFilter={statusFilter}
                 onStatusFilterChange={setStatusFilter}
+                onToggleHidden={() => setShowSettings(true)}
             />
             <div className="sitemap-content">
                 {sidebarOpen && (
@@ -144,6 +173,38 @@ export default function RectifierSiteMapPage() {
                         </>
                     )}
                 </div>
+
+                {/* Settings Modal */}
+                {showSettings && (
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)' }} onClick={() => setShowSettings(false)}>
+                        <div style={{ background: '#111827', border: '1px solid #374151', padding: '24px', borderRadius: '12px', width: '90%', maxWidth: '400px', maxHeight: '80vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#f3f4f6' }}>Site Visibility Settings</h2>
+                            <p style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '20px' }}>Select the sites you want to display on the dashboard.</p>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {sites.map(site => (
+                                    <label key={site.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', padding: '10px', background: '#1f2937', borderRadius: '6px', border: '1px solid #374151' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={!hiddenSiteIds.has(site.id)} 
+                                            onChange={() => toggleSiteVisibility(site.id)}
+                                            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#4f46e5' }}
+                                        />
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ color: '#e5e7eb', fontWeight: '500' }}>{site.code}</span>
+                                            <span style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>{site.name}</span>
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
+
+                            <button onClick={() => setShowSettings(false)} style={{ marginTop: '24px', width: '100%', padding: '12px', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

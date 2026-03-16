@@ -94,7 +94,7 @@ export default function TrendAnalysis({ history }: TrendAnalysisProps) {
                                 <CartesianGrid strokeDasharray="1 0" stroke="rgba(255,255,255,0.05)" vertical={true} />
                                 <XAxis dataKey="time" stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.05)' }} tickMargin={8} />
                                 <YAxis stroke="var(--text-tertiary)" fontSize={9} tickLine={false} axisLine={false} domain={[windMin, windMax]} />
-                                <Tooltip content={<CustomTooltip unit="km/h" color="var(--accent-teal)" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                <Tooltip content={<CustomTooltip unit="knot" color="var(--accent-teal)" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area type="monotone" dataKey="pv" stroke="var(--accent-teal)" strokeWidth={2} fillOpacity={1} fill="url(#colorTeal)" dot={<CustomizedDot fill="var(--bg-main)" stroke="var(--accent-teal)" />} />
                             </AreaChart>
                         </ResponsiveContainer>

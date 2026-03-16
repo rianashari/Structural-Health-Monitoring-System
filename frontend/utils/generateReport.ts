@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SensorData } from '@/hooks/useSensorData';
+import { sites } from '@/data/sites';
+
 
 interface jsPDFWithAutoTable extends jsPDF {
     lastAutoTable: { finalY: number };
@@ -15,13 +17,13 @@ function getStatus(param: string, value: number, swayTolerance: number = 30): st
         return 'NORMAL';
     }
     if (param === 'Total Tilt') {
-        if (value > 0.1) return 'CRITICAL';
-        if (value > 0.05) return 'WARNING';
+        if (value > 0.280) return 'CRITICAL';
+        if (value > 0.2) return 'WARNING';
         return 'NORMAL';
     }
     if (param === 'Wind Speed') {
-        if (value > 15) return 'CRITICAL';
-        if (value > 10) return 'WARNING';
+        if (value > 35) return 'CRITICAL';
+        if (value > 22) return 'WARNING';
         return 'NORMAL';
     }
     return 'NORMAL';
@@ -82,7 +84,9 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     doc.setFont('helvetica', 'normal');
     const siteName = siteInfo?.name ?? 'SHM Site';
     const siteDeviceId = siteInfo?.deviceId ?? latest?.device_id ?? '-';
-    const siteTowerType = siteInfo?.towerType ?? 'Monopole';
+    const siteObj = sites.find(s => s.code === siteDeviceId);
+    const siteTowerType = siteObj?.towerType ?? siteInfo?.towerType ?? 'Monopole';
+    const siteTowerHeight = siteObj?.towerHeight ?? siteInfo?.towerHeight ?? 6;
     const badges = [`Site: ${siteName}`, `Device: ${siteDeviceId}`, `Type: ${siteTowerType}`];
     let badgeX = margin;
     badges.forEach(badge => {
@@ -108,11 +112,11 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     const tiltVal = latest?.total_tilt ?? 0;
     const windVal = latest?.wind_speed ?? 0;
 
-    const swayTolerance = (siteInfo?.towerHeight || 6) * 5;
+    const swayTolerance = siteTowerHeight * 5;
 
     const swayWarning = swayVal > swayTolerance;
     const swayCritical = swayVal > (swayTolerance + 20);
-    const tiltWarning = tiltVal > 0.05;
+    const tiltWarning = tiltVal > 0.280;
     const warningCount = (swayWarning ? 1 : 0) + (tiltWarning ? 1 : 0);
     const criticalCount = swayCritical ? 1 : 0;
     const systemStatus = criticalCount > 0 ? 'CRITICAL' : warningCount > 0 ? 'WARNING' : 'ALL CLEAR';
@@ -173,12 +177,12 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
     }
 
     const sensorRows = latest ? [
-        ['Wind Speed', `${latest.wind_speed.toFixed(2)} km/h`, '0 - 35 km/h', getStatus('Wind Speed', latest.wind_speed)],
+        ['Wind Speed', `${latest.wind_speed.toFixed(2)} knot\n(${latest.wind_speed_ms.toFixed(2)} m/s)`, '0 - 35 knot', getStatus('Wind Speed', latest.wind_speed)],
         ['Pitch', `${latest.pitch.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Roll', `${latest.roll.toFixed(3)}°`, '-90° to 90°', 'NORMAL'],
         ['Tilt Rate', `${latest.tilt_rate.toFixed(4)}°`, '0° - 1°', 'NORMAL'],
         ['Sway', `${latest.sway.toFixed(1)} mm`, `Toleransi: ${swayTolerance} mm`, getStatus('Sway', latest.sway, swayTolerance)],
-        ['Total Tilt', `${latest.total_tilt.toFixed(4)}°`, 'Toleransi: 0.05°', getStatus('Total Tilt', latest.total_tilt)],
+        ['Total Tilt', `${latest.total_tilt.toFixed(4)}°`, 'Toleransi: 0.280°', getStatus('Total Tilt', latest.total_tilt)],
     ] : [['No data available', '-', '-', '-']];
 
     autoTable(doc, {
@@ -251,7 +255,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
 
     autoTable(doc, {
         startY: y + 2,
-        head: [['Date', 'Time', 'Wind (km/h)', 'Pitch (°)', 'Roll (°)', 'Tilt Rate (°)', 'Sway (mm)', 'Total Tilt (°)']],
+        head: [['Date', 'Time', 'Wind (knot)', 'Pitch (°)', 'Roll (°)', 'Tilt Rate (°)', 'Sway (mm)', 'Total Tilt (°)']],
         body: trendRows,
         margin: { left: margin, right: margin },
         styles: {
@@ -299,7 +303,7 @@ export function generateReport(latest: SensorData | null, history: SensorData[],
         wind_speed: 'Wind Speed', pitch: 'Pitch', roll: 'Roll', sway: 'Sway', total_tilt: 'Total Tilt'
     };
     const paramUnits: Record<string, string> = {
-        wind_speed: 'km/h', pitch: '°', roll: '°', sway: 'mm', total_tilt: '°'
+        wind_speed: 'knot', pitch: '°', roll: '°', sway: 'mm', total_tilt: '°'
     };
 
     const changeRows: string[][] = [];

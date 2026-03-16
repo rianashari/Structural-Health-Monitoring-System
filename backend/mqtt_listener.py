@@ -53,7 +53,8 @@ def parse_payload(payload):
       "timestamp": "1773022105995",
       "status": "active",
       "sensors": {
-        "wind_speed": 0,
+        "wind_speed_ms": 4.1,
+        "wind_speed_knot": 7.97,
         "axes": { "pitch": 0.21, "roll": 0.27, "tilt_rate": 0.34, "total_tilt": 0.34 },
         "sway": 0
       }
@@ -68,8 +69,9 @@ def parse_payload(payload):
         axes = sensors.get('axes', {})
         return {
             'device_id': payload.get('device_id', 'UNKNOWN'),
-            'wind_speed': sensors.get('wind_speed', 0),
-            'pitch': axes.get('pitch', 0),
+            'wind_speed': sensors.get('wind_speed_knot') or sensors.get('wind_speed') or 0,
+            'wind_speed_ms': sensors.get('wind_speed_ms') or 0,
+            'pitch': axes.get('pitch') or 0,
             'roll': axes.get('roll', 0),
             'tilt_rate': axes.get('tilt_rate', 0),
             'total_tilt': axes.get('total_tilt', 0),
@@ -80,8 +82,9 @@ def parse_payload(payload):
         # Format lama — flat (backward compatibility)
         return {
             'device_id': payload.get('device_id', 'DPK'),
-            'wind_speed': payload.get('wind_speed', 0),
-            'pitch': payload.get('pitch', 0),
+            'wind_speed': payload.get('wind_speed_knot') or payload.get('wind_speed') or 0,
+            'wind_speed_ms': payload.get('wind_speed_ms') or 0,
+            'pitch': payload.get('pitch') or 0,
             'roll': payload.get('roll', 0),
             'tilt_rate': payload.get('tilt_rate', 0),
             'total_tilt': payload.get('total_tilt', 0),
@@ -100,7 +103,7 @@ def on_message(client, userdata, msg):
         device_id = data['device_id']
 
         print(f"[{now:%H:%M:%S}] 📥 Data diterima - Device: {device_id}")
-        print(f"         Wind Speed  : {data['wind_speed']:.2f}")
+        print(f"         Wind Speed  : {data['wind_speed']:.2f} knot, {data['wind_speed_ms']:.2f} m/s")
         print(f"         Pitch       : {data['pitch']:.3f}°")
         print(f"         Roll        : {data['roll']:.3f}°")
         print(f"         Tilt Rate   : {data['tilt_rate']:.3f}°")
@@ -112,6 +115,7 @@ def on_message(client, userdata, msg):
         sensor_data = SensorData.objects.create(
             device_id=device_id,
             wind_speed=data['wind_speed'],
+            wind_speed_ms=data['wind_speed_ms'],
             pitch=data['pitch'],
             roll=data['roll'],
             tilt_rate=data['tilt_rate'],

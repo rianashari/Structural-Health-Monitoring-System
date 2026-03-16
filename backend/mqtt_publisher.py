@@ -32,7 +32,8 @@ def generate_dummy_data():
     Range nilai disesuaikan dengan yang ditampilkan di frontend dashboard.
     """
     return {
-        'wind_speed': round(random.uniform(0.0, 5.0), 2),       # 0 - 5 km/h (normal range)
+        'wind_speed_knot': round(random.uniform(0.0, 9.7), 2),  # approx 0 - 5 m/s in knots
+        'wind_speed_ms': round(random.uniform(0.0, 5.0), 2),    # 0 - 5 m/s
         'pitch': round(random.uniform(-0.5, 0.5), 3),           # -0.5° to 0.5°
         'roll': round(random.uniform(-0.5, 0.5), 3),            # -0.5° to 0.5°
         'tilt_rate': round(random.uniform(0.0, 0.1), 4),        # 0 - 0.1°
@@ -94,7 +95,7 @@ def main():
 
             if result.rc == mqtt.MQTT_ERR_SUCCESS:
                 print(f"[{now:%H:%M:%S}] 📤 Message #{message_count} published")
-                print(f"         Wind Speed  : {data['wind_speed']:.2f} km/h")
+                print(f"         Wind Speed  : {data['wind_speed_knot']:.2f} knot, {data['wind_speed_ms']:.2f} m/s")
                 print(f"         Pitch       : {data['pitch']:.3f}°")
                 print(f"         Roll        : {data['roll']:.3f}°")
                 print(f"         Tilt Rate   : {data['tilt_rate']:.4f}°")

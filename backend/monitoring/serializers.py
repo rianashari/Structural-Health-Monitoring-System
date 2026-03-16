@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from .models import SensorData
+from .models import SensorData, SiteVisibility
 
+
+class SiteVisibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteVisibility
+        fields = ['device_id', 'is_hidden']
 
 class SensorDataSerializer(serializers.ModelSerializer):
     class Meta:

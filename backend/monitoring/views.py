@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Max, Subquery, OuterRef
 from django.utils import timezone
-from .models import SensorData
-from .serializers import SensorDataSerializer
+from .models import SensorData, SiteVisibility
+from .serializers import SensorDataSerializer, SiteVisibilitySerializer
 
 
 class SensorDataListCreateView(generics.ListCreateAPIView):
@@ -123,3 +123,35 @@ def sensor_data_sites_status(request):
         results.append(data)
 
     return Response(results)
+
+
+from rest_framework.views import APIView
+
+class SiteVisibilityView(APIView):
+    """
+    GET /api/sensor-data/sites-visibility/ -> Ambil daftar visibility semua site.
+    POST /api/sensor-data/sites-visibility/ -> Update (upsert) visibilitas site.
+    """
+    def get(self, request):
+        queryset = SiteVisibility.objects.all()
+        serializer = SiteVisibilitySerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        data = request.data
+        if not isinstance(data, list):
+            return Response({"error": "Expected a list of boolean mappings"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        updated = []
+        for item in data:
+            device_id = item.get('device_id')
+            is_hidden = item.get('is_hidden', False)
+            if device_id:
+                obj, created = SiteVisibility.objects.update_or_create(
+                    device_id=device_id,
+                    defaults={'is_hidden': is_hidden}
+                )
+                updated.append(obj)
+                
+        serializer = SiteVisibilitySerializer(updated, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -63,3 +63,29 @@ class SensorData(models.Model):
 
     def __str__(self):
         return f"SensorData [{self.device_id}] [{self.timestamp:%Y-%m-%d %H:%M:%S}] - Wind: {self.wind_speed}, Tilt: {self.total_tilt}°"
+
+
+class SiteVisibility(models.Model):
+    """
+    Model ini menyimpan konfigurasi visibilitas site di dashboard.
+    Data ini akan disinkronisasikan ke semua klien (browser).
+    Jika is_hidden = True, site tidak akan ditampilkan di Site Map dan Sidebar.
+    """
+    device_id = models.CharField(
+        max_length=50,
+        unique=True,
+        db_index=True,
+        help_text='ID perangkat/site (contoh: KDS-06-039-MS)'
+    )
+    is_hidden = models.BooleanField(
+        default=False,
+        help_text='Apakah site ini disembunyikan dari dashboard?'
+    )
+
+    class Meta:
+        verbose_name = 'Site Visibility'
+        verbose_name_plural = 'Site Visibilities'
+
+    def __str__(self):
+        status = "Hidden" if self.is_hidden else "Visible"
+        return f"Visibility [{self.device_id}] - {status}"

@@ -8,6 +8,7 @@ import SiteMapHeader from '@/components/site-monitoring/SiteMapHeader';
 import SiteSidebar from '@/components/site-monitoring/SiteSidebar';
 import SiteMap from '@/components/site-monitoring/SiteMap';
 import SitePreviewCard from '@/components/site-monitoring/SitePreviewCard';
+import { useSiteVisibility } from '@/hooks/useSiteVisibility';
 
 export default function RectifierSiteMapPage() {
     const { isAuthenticated, logout } = useAuth();
@@ -16,38 +17,14 @@ export default function RectifierSiteMapPage() {
     const [areaFilter, setAreaFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [hiddenSiteIds, setHiddenSiteIds] = useState<Set<string>>(new Set());
     const liveStatuses = useSitesStatus(15000);
+    const { hiddenSiteIds, toggleVisibility, isLoading } = useSiteVisibility();
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
             setSidebarOpen(false);
         }
-        
-        try {
-            const saved = localStorage.getItem('hiddenSites');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) {
-                    setHiddenSiteIds(new Set(parsed));
-                }
-            } else {
-                const initialHidden = sites.filter(s => s.isHidden).map(s => s.id);
-                setHiddenSiteIds(new Set(initialHidden));
-            }
-        } catch (e) {}
     }, []);
-
-    const toggleSiteVisibility = (siteId: string) => {
-        const newHidden = new Set(hiddenSiteIds);
-        if (newHidden.has(siteId)) {
-            newHidden.delete(siteId);
-        } else {
-            newHidden.add(siteId);
-        }
-        setHiddenSiteIds(newHidden);
-        localStorage.setItem('hiddenSites', JSON.stringify(Array.from(newHidden)));
-    };
 
     const liveSites = useMemo(() => {
         let visibleSites = sites.filter(s => !hiddenSiteIds.has(s.id));
@@ -76,7 +53,7 @@ export default function RectifierSiteMapPage() {
         return new Set(filtered.map(s => s.id));
     }, [liveSites, areaFilter, statusFilter]);
 
-    if (isAuthenticated === null) {
+    if (isAuthenticated === null || isLoading) {
         return (
             <div style={{
                 minHeight: '100vh',
@@ -187,7 +164,7 @@ export default function RectifierSiteMapPage() {
                                         <input 
                                             type="checkbox" 
                                             checked={!hiddenSiteIds.has(site.id)} 
-                                            onChange={() => toggleSiteVisibility(site.id)}
+                                            onChange={() => toggleVisibility(site.id)}
                                             style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#4f46e5' }}
                                         />
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

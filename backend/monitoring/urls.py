@@ -6,4 +6,5 @@ urlpatterns = [
     path('sensor-data/latest/', views.sensor_data_latest, name='sensor-data-latest'),
     path('sensor-data/history/', views.sensor_data_history, name='sensor-data-history'),
     path('sensor-data/sites-status/', views.sensor_data_sites_status, name='sensor-data-sites-status'),
+    path('sensor-data/sites-visibility/', views.SiteVisibilityView.as_view(), name='sensor-data-sites-visibility'),
 ]

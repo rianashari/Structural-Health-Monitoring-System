@@ -13,14 +13,15 @@ import {
     Droplet
 } from 'lucide-react';
 import { SensorData } from '@/hooks/useSensorData';
-import { sites } from '@/data/sites';
+import { sites, Site } from '@/data/sites';
 
 interface TelemetrySectionProps {
     latest: SensorData | null;
     isConnected: boolean;
+    site?: Site | null;
 }
 
-export default function TelemetrySection({ latest, isConnected }: TelemetrySectionProps) {
+export default function TelemetrySection({ latest, isConnected, site }: TelemetrySectionProps) {
     const windSpeed = latest?.wind_speed ?? 0;
     const windSpeedMs = latest?.wind_speed_ms ?? 0;
     const pitch = latest?.pitch ?? 0;
@@ -33,9 +34,9 @@ export default function TelemetrySection({ latest, isConnected }: TelemetrySecti
     const maxWind = 35;
     const windPercent = Math.min((windSpeed / maxWind) * 100, 100);
 
-    const activeSite = sites.find(s => s.code === latest?.device_id);
+    const activeSite = site ?? sites.find(s => s.code === latest?.device_id);
     const swayTolerance = activeSite ? activeSite.towerHeight * 5 : 30;
-    const tiltTolerance = 0.286
+    const tiltTolerance = 0.286;
 
     const hasPitch = latest !== null && pitch !== 0;
     const hasRoll = latest !== null && roll !== 0;

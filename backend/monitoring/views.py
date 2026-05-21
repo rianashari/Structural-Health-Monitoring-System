@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Max, Subquery, OuterRef
 from django.utils import timezone
-from .models import SensorData, SiteVisibility
-from .serializers import SensorDataSerializer, SiteVisibilitySerializer
+from .models import SensorData, SiteVisibility, Site
+from .serializers import SensorDataSerializer, SiteVisibilitySerializer, SiteSerializer
 
 
 class SensorDataListCreateView(generics.ListCreateAPIView):
@@ -155,3 +155,180 @@ class SiteVisibilityView(APIView):
                 
         serializer = SiteVisibilitySerializer(updated, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SiteListCreateView(generics.ListCreateAPIView):
+    """
+    GET  /api/sensor-data/sites/     → List semua site (dengan auto-seeding jika kosong)
+    POST /api/sensor-data/sites/     → Tambah site baru
+    """
+    queryset = Site.objects.all()
+    serializer_class = SiteSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        # Auto-seeding jika tabel Site kosong
+        if Site.objects.count() == 0:
+            self.seed_default_sites()
+        return Site.objects.all()
+
+    def seed_default_sites(self):
+        default_sites = [
+            {
+                'id': 'ckg-04-031',
+                'name': 'SWADAYA',
+                'siteId': '20TS10B1529',
+                'code': 'CKG-04-031-MM',
+                'lat': -6.237318,
+                'lng': 106.919108,
+                'area': 'AREA 2',
+                'region': 'Jabodetabek Provinsi DKI Jakarta',
+                'kabupaten': 'Kota Adm. Jakarta Timur',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 42,
+            },
+            {
+                'id': 'bks-04-079',
+                'name': 'Jalan Mustikasari',
+                'siteId': '13TS11B2492',
+                'code': 'BKS-04-079-MS',
+                'lat': -6.30162,
+                'lng': 106.99875,
+                'area': 'AREA 2',
+                'region': 'Jabodetabek Provinsi Jawa Barat',
+                'kabupaten': 'Kota Bekasi',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 42,
+            },
+            {
+                'id': 'ggp-04-196',
+                'name': 'SMU 84',
+                'siteId': '13TS10L1554',
+                'code': 'GGP-04-196-MS',
+                'lat': -6.146773,
+                'lng': 106.70305,
+                'area': 'AREA 2',
+                'region': 'Jabodetabek Provinsi Jawa Barat',
+                'kabupaten': 'Kota Bekasi',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 52,
+            },
+            {
+                'id': 'ckr-04-181',
+                'name': 'Pedurenan Mustikajaya',
+                'siteId': '13TS05W0345',
+                'code': 'CKR-04-181-MG',
+                'lat': -6.30698,
+                'lng': 107.01621,
+                'area': 'AREA 2',
+                'region': 'Jabodetabek Provinsi Jawa Barat',
+                'kabupaten': 'Kabupaten Bekasi',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 52,
+            },
+            {
+                'id': 'spa-05-017',
+                'name': 'Kertamukti Cikondang',
+                'siteId': '12TS05B0032',
+                'code': 'SPA-05-017-MS',
+                'lat': -7.806772,
+                'lng': 108.341564,
+                'area': 'AREA 2',
+                'region': 'Jawa Barat',
+                'kabupaten': 'Kabupaten Tasikmalaya',
+                'status': 'offline',
+                'towerType': 'SST',
+                'towerHeight': 42,
+            },
+            {
+                'id': 'cms-05-279',
+                'name': 'Permanenisasi Cikongsu Karesik Isidamulih',
+                'siteId': '12TS10B0567',
+                'code': 'CMS-05-279-NA',
+                'lat': -7.67537,
+                'lng': 108.59716,
+                'area': 'AREA 2',
+                'region': 'Jawa Barat',
+                'kabupaten': 'Kabupaten Sumedang',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 61,
+            },
+            {
+                'id': 'kds-06-039',
+                'name': 'Ngembalrejo',
+                'siteId': '19IS11B0523',
+                'code': 'KDS-06-039-MS',
+                'lat': -6.80439,
+                'lng': 110.88274,
+                'area': 'AREA 3',
+                'region': 'Jawa Tengah',
+                'kabupaten': 'Kabupaten Kudus',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 72,
+                'isHidden': True,
+            },
+            {
+                'id': 'pti-06-080',
+                'name': 'Pati Alun-Alun',
+                'siteId': '21TS02B3066',
+                'code': 'PTI-06-080-MS',
+                'lat': -6.751583,
+                'lng': 111.039556,
+                'area': 'AREA 3',
+                'region': 'Jawa Tengah',
+                'kabupaten': 'Kabupaten Pati',
+                'status': 'warning',
+                'towerType': 'SST',
+                'towerHeight': 72,
+                'isHidden': True,
+            },
+            {
+                'id': 'tbn-07-059',
+                'name': 'Banjarejo Bancar',
+                'siteId': '18TS07B0118',
+                'code': 'TBN-07-059-MS',
+                'lat': -6.77378,
+                'lng': 111.72506,
+                'area': 'AREA 3',
+                'region': 'Jawa Timur',
+                'kabupaten': 'Kabupaten Tuban',
+                'status': 'online',
+                'towerType': 'SST',
+                'towerHeight': 42,
+                'isHidden': True,
+            },
+            {
+                'id': 'krs-07-020',
+                'name': 'Sumber Taman 2',
+                'siteId': '13TS01B0245',
+                'code': 'KRS-07-020-MS',
+                'lat': -7.76792,
+                'lng': 113.24447,
+                'area': 'AREA 3',
+                'region': 'Jawa Timur',
+                'kabupaten': 'Kabupaten Probolinggo',
+                'status': 'online',
+                'towerType': 'Monopole',
+                'towerHeight': 30,
+                'isHidden': True,
+            },
+        ]
+        for s in default_sites:
+            Site.objects.get_or_create(id=s['id'], defaults=s)
+
+
+class SiteRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET    /api/sensor-data/sites/<pk>/ → Get detail site
+    PUT    /api/sensor-data/sites/<pk>/ → Update site
+    DELETE /api/sensor-data/sites/<pk>/ → Hapus site
+    """
+    queryset = Site.objects.all()
+    serializer_class = SiteSerializer
+

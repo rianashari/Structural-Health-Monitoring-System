@@ -89,3 +89,63 @@ class SiteVisibility(models.Model):
     def __str__(self):
         status = "Hidden" if self.is_hidden else "Visible"
         return f"Visibility [{self.device_id}] - {status}"
+
+
+class Site(models.Model):
+    """
+    Model untuk menyimpan konfigurasi dan metadata site secara dinamis.
+    """
+    id = models.CharField(
+        max_length=50,
+        primary_key=True,
+        help_text='ID unik site (contoh: ckg-04-031)'
+    )
+    name = models.CharField(
+        max_length=100,
+        help_text='Nama site'
+    )
+    siteId = models.CharField(
+        max_length=50,
+        help_text='Site ID (contoh: 20TS10B1529)'
+    )
+    code = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text='Kode site/device_id (contoh: CKG-04-031-MM)'
+    )
+    lat = models.FloatField(help_text='Latitude')
+    lng = models.FloatField(help_text='Longitude')
+    area = models.CharField(
+        max_length=50,
+        help_text='Area (contoh: AREA 2)'
+    )
+    region = models.CharField(
+        max_length=100,
+        help_text='Region'
+    )
+    kabupaten = models.CharField(
+        max_length=100,
+        help_text='Kabupaten/Kota'
+    )
+    status = models.CharField(
+        max_length=20,
+        default='offline',
+        help_text='Status awal'
+    )
+    towerType = models.CharField(
+        max_length=50,
+        help_text='Tipe Tower (contoh: SST)'
+    )
+    towerHeight = models.FloatField(help_text='Tinggi Tower dalam meter')
+    isHidden = models.BooleanField(
+        default=False,
+        help_text='Apakah site disembunyikan secara default?'
+    )
+
+    class Meta:
+        verbose_name = 'Site'
+        verbose_name_plural = 'Sites'
+
+    def __str__(self):
+        return f"Site {self.name} ({self.code})"
+

@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import SensorData, SiteVisibility
+from .models import SensorData, SiteVisibility, Site
+
+
+class SiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Site
+        fields = '__all__'
 
 
 class SiteVisibilitySerializer(serializers.ModelSerializer):

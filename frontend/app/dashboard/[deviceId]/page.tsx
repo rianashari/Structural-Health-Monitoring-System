@@ -9,21 +9,22 @@ import HistoryTable from '@/components/ui/HistoryTable';
 import { useSensorData } from '@/hooks/useSensorData';
 import { useSitesStatus } from '@/hooks/useSitesStatus';
 import { useAuth } from '@/hooks/useAuth';
-import { sites } from '@/data/sites';
+import { useSites } from '@/hooks/useSites';
 
 export default function DashboardPage() {
     const { isAuthenticated, logout } = useAuth();
     const params = useParams();
     const deviceId = params.deviceId as string;
 
-    const site = sites.find(s => s.code === deviceId);
+    const { sites: dbSites, loading: sitesLoading } = useSites();
+    const site = dbSites.find(s => s.code === deviceId);
 
     const { latest, history } = useSensorData(5000, deviceId);
 
     const liveStatuses = useSitesStatus(15000);
     const deviceStatus = liveStatuses.find(s => s.device_id === deviceId);
     const isConnected = deviceStatus ? deviceStatus.live_status === 'online' : false;
-    if (isAuthenticated === null) {
+    if (isAuthenticated === null || sitesLoading) {
         return (
             <div style={{
                 minHeight: '100vh',
@@ -53,9 +54,9 @@ export default function DashboardPage() {
 
     return (
         <div className="dashboard-container">
-            <Header latest={latest} history={history} onLogout={logout} siteName={site?.name} deviceId={deviceId} />
+            <Header latest={latest} history={history} onLogout={logout} siteName={site?.name} deviceId={deviceId} towerType={site?.towerType} towerHeight={site?.towerHeight} />
             <HeroCard latest={latest} isConnected={isConnected} site={site} deviceId={deviceId} />
-            <TelemetrySection latest={latest} isConnected={isConnected} />
+            <TelemetrySection latest={latest} isConnected={isConnected} site={site} />
             <TrendAnalysis history={history} />
             <HistoryTable history={history} />
         </div>

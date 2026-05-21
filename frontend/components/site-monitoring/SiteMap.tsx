@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Site } from '@/data/sites';
 
 interface SiteMapProps {
@@ -17,10 +17,9 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
     const markersRef = useRef<Map<string, L.Marker>>(new Map());
     const leafletRef = useRef<typeof import('leaflet') | null>(null);
     const onSelectSiteRef = useRef(onSelectSite);
-    const sitesRef = useRef(sites);
+    const [mapReady, setMapReady] = useState(false);
 
     onSelectSiteRef.current = onSelectSite;
-    sitesRef.current = sites;
 
     const createIcon = useCallback((L: typeof import('leaflet'), status: string) => {
         const color = status === 'online' ? '#08b87c' : status === 'warning' ? '#eab308' : '#f43f5e';
@@ -70,34 +69,7 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
             L.control.zoom({ position: 'bottomright' }).addTo(map);
 
             mapInstanceRef.current = map;
-
-            const currentSites = sitesRef.current;
-            currentSites.forEach(site => {
-                const marker = L.marker([site.lat, site.lng], {
-                    icon: createIcon(L, site.status),
-                }).addTo(map);
-
-                marker.on('click', () => {
-                    onSelectSiteRef.current(site);
-                    map.flyTo([site.lat, site.lng], 12, { duration: 0.8 });
-                });
-
-                marker.bindTooltip(
-                    `<div style="font-weight:600;font-size:12px;">${site.name}</div><div style="font-size:10px;opacity:0.7;">${site.code}</div>`,
-                    {
-                        direction: 'top',
-                        offset: [0, -16],
-                        className: 'site-marker-tooltip',
-                    }
-                );
-
-                markersRef.current.set(site.id, marker);
-            });
-
-            if (currentSites.length > 0) {
-                const group = L.featureGroup(Array.from(markersRef.current.values()));
-                map.fitBounds(group.getBounds().pad(0.15));
-            }
+            setMapReady(true);
         });
 
         return () => {
@@ -106,21 +78,65 @@ export default function SiteMap({ sites, selectedSite, onSelectSite, sidebarOpen
                 mapInstanceRef.current = null;
                 leafletRef.current = null;
                 markersRef.current.clear();
+                setMapReady(false);
             }
         };
     }, []);
 
+    // Reactive markers effect: adds, updates, or deletes markers based on `sites` prop changes
     useEffect(() => {
         const L = leafletRef.current;
-        if (!L || !mapInstanceRef.current) return;
+        const map = mapInstanceRef.current;
+        if (!mapReady || !L || !map) return;
 
-        sites.forEach(site => {
-            const marker = markersRef.current.get(site.id);
-            if (marker) {
-                marker.setIcon(createIcon(L, site.status));
+        // 1. Remove markers for sites that are no longer in the list
+        const currentSiteIds = new Set(sites.map(s => s.id));
+        markersRef.current.forEach((marker, siteId) => {
+            if (!currentSiteIds.has(siteId)) {
+                map.removeLayer(marker);
+                markersRef.current.delete(siteId);
             }
         });
-    }, [sites, createIcon]);
+
+        // 2. Add or update markers for current sites
+        sites.forEach(site => {
+            let marker = markersRef.current.get(site.id);
+            const tooltipContent = `<div style="font-weight:600;font-size:12px;">${site.name}</div><div style="font-size:10px;opacity:0.7;">${site.code}</div>`;
+            
+            if (marker) {
+                // Update position
+                marker.setLatLng([site.lat, site.lng]);
+                // Update icon
+                marker.setIcon(createIcon(L, site.status));
+                // Update tooltip
+                marker.setTooltipContent(tooltipContent);
+            } else {
+                // Add new marker
+                marker = L.marker([site.lat, site.lng], {
+                    icon: createIcon(L, site.status),
+                }).addTo(map);
+
+                marker.on('click', () => {
+                    onSelectSiteRef.current(site);
+                    map.flyTo([site.lat, site.lng], 12, { duration: 0.8 });
+                });
+
+                marker.bindTooltip(tooltipContent, {
+                    direction: 'top',
+                    offset: [0, -16],
+                    className: 'site-marker-tooltip',
+                });
+
+                markersRef.current.set(site.id, marker);
+            }
+        });
+
+        // Fit bounds on first seed or when sites are initialized
+        if (markersRef.current.size > 0 && map.getZoom() === 7) {
+            const group = L.featureGroup(Array.from(markersRef.current.values()));
+            map.fitBounds(group.getBounds().pad(0.15));
+        }
+    }, [sites, mapReady, createIcon]);
 
     useEffect(() => {
         const map = mapInstanceRef.current;

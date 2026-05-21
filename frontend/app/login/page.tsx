@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const VALID_USERNAME = 'nyk_verti';
-const VALID_PASSWORD = 'adminnyk123';
+const VALID_USERS = [
+    { username: 'nyk_verti', password: 'adminnyk123', role: 'user' },
+    { username: 'nyksuper_verti', password: 'adminnyk123', role: 'superadmin' }
+];
 
 export default function LoginPage() {
     const router = useRouter();
@@ -50,9 +52,14 @@ export default function LoginPage() {
 
         await new Promise((r) => setTimeout(r, 600));
 
-        if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+        const foundUser = VALID_USERS.find(
+            (u) => u.username === username && u.password === password
+        );
+
+        if (foundUser) {
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('username', username);
+            localStorage.setItem('role', foundUser.role);
             localStorage.setItem('loginTime', Date.now().toString());
             router.push('/site-map');
         } else {

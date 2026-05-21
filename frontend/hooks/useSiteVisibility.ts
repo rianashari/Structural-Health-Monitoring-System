@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { sites } from '@/data/sites';
+import { sites, Site } from '@/data/sites';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
@@ -10,7 +10,7 @@ export interface SiteVisibilityState {
     is_hidden: boolean;
 }
 
-export function useSiteVisibility() {
+export function useSiteVisibility(customSites?: Site[]) {
     const [hiddenSiteIds, setHiddenSiteIds] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
 
@@ -23,8 +23,9 @@ export function useSiteVisibility() {
                 const hiddenFromBackend = data.filter(s => s.is_hidden).map(s => s.device_id);
                 const backendSet = new Set(hiddenFromBackend);
                 
-                // Fallback to default `sites.ts` hidden list if not stored in DB yet.
-                const defaultHidden = sites.filter(s => s.isHidden).map(s => s.id);
+                // Fallback to default list if not stored in DB yet.
+                const activeSites = customSites || sites;
+                const defaultHidden = activeSites.filter(s => s.isHidden).map(s => s.id);
                 const hasExistingData = data.length > 0;
 
                 setHiddenSiteIds(hasExistingData ? backendSet : new Set(defaultHidden));
@@ -34,7 +35,7 @@ export function useSiteVisibility() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [customSites]);
 
     useEffect(() => {
         fetchVisibility();

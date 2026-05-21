@@ -14,9 +14,11 @@ interface HeaderProps {
     onLogout?: () => void;
     siteName?: string;
     deviceId?: string;
+    towerType?: string;
+    towerHeight?: number;
 }
 
-export default function Header({ latest = null, history = [], onLogout, siteName, deviceId }: HeaderProps) {
+export default function Header({ latest = null, history = [], onLogout, siteName, deviceId, towerType, towerHeight }: HeaderProps) {
     const router = useRouter();
     const [isExportOpen, setIsExportOpen] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
@@ -54,12 +56,12 @@ export default function Header({ latest = null, history = [], onLogout, siteName
             if (res.ok) {
                 const filteredData: SensorData[] = await res.json();
                 const reportLatest = filteredData.length > 0 ? filteredData[0] : latest;
-                generateReport(reportLatest, filteredData, startDate, endDate, { name: siteName, deviceId });
+                generateReport(reportLatest, filteredData, startDate, endDate, { name: siteName, deviceId, towerType, towerHeight });
             } else {
-                generateReport(latest, history, startDate, endDate, { name: siteName, deviceId });
+                generateReport(latest, history, startDate, endDate, { name: siteName, deviceId, towerType, towerHeight });
             }
         } catch {
-            generateReport(latest, history, startDate, endDate, { name: siteName, deviceId });
+            generateReport(latest, history, startDate, endDate, { name: siteName, deviceId, towerType, towerHeight });
         } finally {
             setIsExporting(false);
         }

@@ -87,8 +87,8 @@ export function generateReport(latest: SensorData | null, historyData: SensorDat
     const siteName = siteInfo?.name ?? 'SHM Site';
     const siteDeviceId = siteInfo?.deviceId ?? latest?.device_id ?? '-';
     const siteObj = sites.find(s => s.code === siteDeviceId);
-    const siteTowerType = siteObj?.towerType ?? siteInfo?.towerType ?? 'Monopole';
-    const siteTowerHeight = siteObj?.towerHeight ?? siteInfo?.towerHeight ?? 6;
+    const siteTowerType = siteInfo?.towerType ?? siteObj?.towerType ?? 'Monopole';
+    const siteTowerHeight = siteInfo?.towerHeight ?? siteObj?.towerHeight ?? 42;
     const badges = [`Site: ${siteName}`, `Device: ${siteDeviceId}`, `Type: ${siteTowerType}`];
     let badgeX = margin;
     badges.forEach(badge => {
